@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <% include partials/head %>
+    <link rel="stylesheet" href="../css/logs.css">
+  </head>
+  <header>
+    <% include partials/header %>
+  </header>
+  <body>
+    <div class="viewArea">
+      <table class="table table-striped table-hover table-sm">
+      <thead>
+        <tr>
+          <th>Activity</th>
+          <th>Time</th>
+          <th>Second Count</th>
+          <th>Motion Count</th>
+        </tr>
+      </thead>
+
+      <% logData.forEach(function(data) { %>
+      <% if (data.activity == "TV ON") { %>
+        <tr class="table-success">
+      <% } else if (data.activity == "TV OFF") { %>
+        <tr class="table-warning">
+      <% } else { %>
+        <tr>
+      <% } %>
+
+      <td><%= data.activity %></td>
+      <td><%= data.time %></td>
+      <td><%= data.motion_total %></td>
+      <td><%= data.motion_count %></td>
+      </tr>
+      <% }); %>
+      </table>
+      <% include partials/scripts %>
+    </div>
+  </body>
+</html>
