@@ -1,5 +1,10 @@
+.navbar {
+  position: fixed;
+  width: 100%;
+}
+
 .viewArea {
-  width: 90%;
-  padding-top: 2%;
+  width: 95%;
+  padding-top: 70px;
   padding-left: 3%;
 }
