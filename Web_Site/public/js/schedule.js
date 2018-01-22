@@ -48,7 +48,6 @@ $(document).ready(function() {
       row.append($("<th scope='col' colspan='4'></th>").text(i-15 + " PM"));
     }
   }
-  console.log(row);
   pm_table.append(row);
 
   // PM Table
