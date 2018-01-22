@@ -77,8 +77,77 @@ echo "in" > /sys/class/gpio/gpio$GPIO/direction
 
 motionCount=0
 motionTotal=0
+FIRST_RUN=true
 
 while true; do
+  # Get what TV state we should be using
+	CURRENT_MINUTE=$(date +%M)
+	modulo=$(( $CURRENT_MINUTE % 15 ))
+
+	if [ $FIRST_RUN = "true" ]; then
+		if   [ $CURRENT_MINUTE -lt "15" ]; then
+			M=00
+			ON_OFF_SLEEP=$(( (15 - $CURRENT_MINUTE)*60 ))
+		elif [ $CURRENT_MINUTE -lt "30" ]; then
+			M=15
+			ON_OFF_SLEEP=$(( (30-$CURRENT_MINUTE)*60 ))
+		elif [ $CURRENT_MINUTE -lt "45" ]; then
+			M=30
+			ON_OFF_SLEEP=$(( (45-$CURRENT_MINUTE)*60 ))
+		else
+			M=45
+			ON_OFF_SLEEP=$(( (60-$CURRENT_MINUTE)*60 ))
+		fi
+
+		CURRENT_DAY=$(date +%A)
+		CURRENT_TIME=$(date +%H):$M:00
+		QUERY="SELECT tv_state FROM schedule WHERE day='$CURRENT_DAY' and time_range='$CURRENT_TIME'"
+		TV_SCHEDULE=`psql -tc "$QUERY" Frame_TV_DB postgres`
+		echo $QUERY
+		echo TV_Schedule: $TV_SCHEDULE
+		FIRST_RUN=false
+	elif [ "$modulo" -eq 0 ]; then
+		CURRENT_DAY=$(date +%A)
+		CURRENT_TIME=$(date +%H:%M):00
+
+		QUERY="SELECT tv_state FROM schedule WHERE day='$CURRENT_DAY' and time_range='$CURRENT_TIME'"
+		TV_SCHEDULE=`psql -tc "$QUERY" Frame_TV_DB postgres`
+		echo $TV_SCHEDULE
+		ON_OFF_SLEEP=900
+	fi
+
+  	# TV state is ON or OFF
+	if [ $TV_SCHEDULE = 'ON' ]; then
+		tvStatus=$( getTvPowerStatus )
+
+		if [ "$tvStatus" = "standby" ]; then
+                        motionCount=0
+			motionTotal=0
+			QUERY="INSERT INTO logs (activity, time_stamp, motion_total, motion_count) VALUES ('TV ON', '$( date '+%Y-%m-%d %H:%M:%S' )', '0', '0')"
+                        psql -c "$QUERY" Frame_TV_DB postgres
+                        echo Turning TV On - $( getTime )
+                        setTvPower "on"
+		fi
+
+		sleep $ON_OFF_SLEEP
+		continue
+	fi
+
+	if [ $TV_SCHEDULE = 'OFF' ]; then
+                tvStatus=$( getTvPowerStatus )
+
+                if [ "$tvStatus" = "on" ]; then
+                        echo Turning TV Off - $( getTime )
+			QUERY="INSERT INTO logs (activity, time_stamp, motion_total, motion_count) VALUES ('TV OFF', '$( date '+%Y-%m-%d %H:%M:%S' )', '0', '0')"
+                	psql -c "$QUERY" Frame_TV_DB postgres
+               		setTvPower "standby"
+                	echo
+                fi
+                sleep $ON_OFF_SLEEP
+                continue
+        fi
+
+	# TV state is MOTION
 	MotionStatus=$( getMotionStatus )
 	motionTotal=$(($motionTotal + 1))
 
