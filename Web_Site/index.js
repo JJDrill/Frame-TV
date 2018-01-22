@@ -55,6 +55,18 @@ app.post('/settings', urlencodedParser, function(req, res){
   })
 });
 
+app.get('/schedule', function (req, res) {
+  var query_string = 'SELECT day, time_range, tv_state \
+    FROM schedule;'
+
+  client.query(query_string, (err, data) => {
+    if (err) throw err;
+    res.render('schedule', {
+      schedule: data.rows
+    });
+  })
+})
+
 app.get('/tvcontrol', function (req, res) {
   res.render('tvcontrol');
 })

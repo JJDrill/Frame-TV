@@ -1,0 +1,22 @@
+[data-state="OFF"] {
+  background-color: gray;
+}
+
+[data-state="MOTION"] {
+  background-color: green;
+}
+
+[data-state="ON"] {
+  background-color: blue;
+}
+
+.legend {
+  color: white;
+  text-align: center;
+  width: auto;
+}
+
+.legend td  {
+  padding-left: 20px;
+  padding-right: 20px;
+}

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <% include partials/head %>
+    <link rel="stylesheet" href="../css/schedule.css">
+    <script>
+    // var input_data = '<%- schedule %>';
+      var input_data = <%-JSON.stringify(schedule)%>
+    </script>
+  </head>
+  <header>
+    <% include partials/header %>
+  </header>
+  <body>
+    <div class="viewArea legendDiv">
+      <table align="center" class="table table-sm legend">
+        <tr>
+          <td data-state='MOTION'>Motion Activated</td>
+          <td data-state='ON'>TV Always On</td>
+          <td data-state='OFF'>TV Always Off</td>
+        </tr>
+      </table>
+    </div>
+    <div class="viewArea">
+      <div class="am_schedule"></div>
+      <div class="pm_schedule"></div>
+    </div>
+    <% include partials/scripts %>
+    <script src="../js/schedule.js"></script>
+  </body>
+</html>
