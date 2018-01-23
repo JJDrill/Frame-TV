@@ -1,4 +1,5 @@
 $(document).ready(function() {
+  scheduleChanges=[]
   scheduleData=normalizeInputData(input_data)
 
   // AM Table
@@ -26,6 +27,7 @@ $(document).ready(function() {
       row.append($("<td scope='col' \
         id='tableCell' \
         onclick='changeScheduleState(this)' \
+        data-day='" + scheduleData[day_name][i].Day + "' \
         data-time='" + scheduleData[day_name][i].Time + "' \
         data-state='" + scheduleData[day_name][i].State + "'></td>").text(""));
     }
@@ -59,6 +61,7 @@ $(document).ready(function() {
       row.append($("<td scope='col' \
         id='tableCell' \
         onclick='changeScheduleState(this)' \
+        data-day='" + scheduleData[day_name][i].Day + "' \
         data-time='" + scheduleData[day_name][i].Time + "' \
         data-state='" + scheduleData[day_name][i].State + "'></td>").text(""));
     }
@@ -69,19 +72,36 @@ $(document).ready(function() {
   $('div.pm_schedule').append(pm_table);
 });
 
+function saveChanges() {
+  $.post('/schedule', scheduleChanges)
+  // $.post('/schedule', scheduleChanges).function(response){
+  //   console.log(response);
+  // }
+}
+
 function changeScheduleState(cell) {
   // MOTION --> ON --> OFF
+  changes=[]
+  changes['day']=cell.getAttribute('data-day')
+  changes['time']=cell.getAttribute('data-time')
   currentState = cell.getAttribute("data-state")
+  myKey=changes['day'] + changes['time']
 
   if (currentState === "MOTION") {
     cell.setAttribute('data-state', 'ON')
+    changes['newState']="ON"
   } else if (currentState === "ON") {
     cell.setAttribute('data-state', 'OFF')
+    changes['newState']="OFF"
   } else if (currentState === "OFF") {
     cell.setAttribute('data-state', 'MOTION')
+    changes['newState']="MOTION"
   } else {
     console.log("State is not defined: " + currentState);
   }
+
+  scheduleChanges[myKey]=changes
+  console.log(scheduleChanges);
 }
 
 function normalizeInputData(data) {
@@ -96,6 +116,7 @@ function normalizeInputData(data) {
 
   for (var i = 0; i < input_data.length; i++) {
     var data = []
+    data["Day"]=input_data[i].day
     data["Time"]=input_data[i].time_range
     data["State"]=input_data[i].tv_state
     schedule[input_data[i].day].push(data)

@@ -57,7 +57,7 @@ app.post('/settings', urlencodedParser, function(req, res){
 
 app.get('/schedule', function (req, res) {
   var query_string = 'SELECT day, time_range, tv_state \
-    FROM schedule;'
+    FROM schedule ORDER BY time_range;'
 
   client.query(query_string, (err, data) => {
     if (err) throw err;
@@ -65,6 +65,20 @@ app.get('/schedule', function (req, res) {
       schedule: data.rows
     });
   })
+})
+
+app.post('/schedule', urlencodedParser, function(req, res){
+  console.log("test!");
+  // if (!req.body) return res.sendStatus(400)
+  // console.log(req);
+  // for (key_name in req.body) {
+  //
+  //   var query_string = 'UPDATE app_config \
+  //     SET setting_value = \'' + req.body[key_name] + '\' \
+  //     WHERE setting_name = \'' + key_name + '\';'
+  //
+  //   client.query(query_string, (err, data) => {
+  //     if (err) throw err;
 })
 
 app.get('/tvcontrol', function (req, res) {
