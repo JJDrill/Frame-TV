@@ -12,6 +12,9 @@
   </header>
   <body>
     <div class="viewArea">
+      <!-- <div id="saveSuccess" class="alert alert-success alert-dismissible fade show" role="alert">
+        This is a success alert—check it out!
+      </div> -->
       <div class="legendDiv">
         <table align="center" class="table table-sm legend">
           <tr>
@@ -23,9 +26,9 @@
       </div>
       <div class="am_schedule"></div>
       <div class="pm_schedule"></div>
-      <!-- <div>
-        <button onclick="saveChanges()">Submit</button>
-      </div> -->
+      <div>
+        <button id="saveButton" onclick="saveChanges()">Submit</button>
+      </div>
     </div>
     <% include partials/scripts %>
     <script src="../js/schedule.js"></script>

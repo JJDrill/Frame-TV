@@ -1,6 +1,7 @@
 $(document).ready(function() {
-  scheduleChanges=[]
+  scheduleChanges={}
   scheduleData=normalizeInputData(input_data)
+  document.getElementById("saveButton").disabled = true;
 
   // AM Table
   var am_table = $("<table/>").addClass('table table-bordered table-sm');
@@ -73,35 +74,39 @@ $(document).ready(function() {
 });
 
 function saveChanges() {
-  $.post('/schedule', scheduleChanges)
-  // $.post('/schedule', scheduleChanges).function(response){
-  //   console.log(response);
-  // }
+  $.post('/schedule', { scheduleChanges: JSON.stringify(scheduleChanges) });
+  scheduleChanges = {}
+  document.getElementById("saveButton").disabled = true;
+  // document.getElementById("saveSuccess").hidden = false;
+  // $('.alert').alert()
 }
 
 function changeScheduleState(cell) {
   // MOTION --> ON --> OFF
-  changes=[]
-  changes['day']=cell.getAttribute('data-day')
-  changes['time']=cell.getAttribute('data-time')
   currentState = cell.getAttribute("data-state")
-  myKey=changes['day'] + changes['time']
 
   if (currentState === "MOTION") {
     cell.setAttribute('data-state', 'ON')
-    changes['newState']="ON"
+    newState = "ON"
   } else if (currentState === "ON") {
     cell.setAttribute('data-state', 'OFF')
-    changes['newState']="OFF"
+    newState = "OFF"
   } else if (currentState === "OFF") {
     cell.setAttribute('data-state', 'MOTION')
-    changes['newState']="MOTION"
+    newState = "MOTION"
   } else {
     console.log("State is not defined: " + currentState);
   }
 
+  myKey = cell.getAttribute('data-day') + cell.getAttribute('data-time')
+  changes = {
+    day: cell.getAttribute('data-day'),
+    time_range: cell.getAttribute('data-time'),
+    tv_state: newState
+  }
+
   scheduleChanges[myKey]=changes
-  console.log(scheduleChanges);
+  document.getElementById("saveButton").disabled = false;
 }
 
 function normalizeInputData(data) {

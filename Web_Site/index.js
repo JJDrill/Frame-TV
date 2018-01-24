@@ -6,11 +6,18 @@ var bodyParser = require('body-parser')
 var path = require('path')
 var urlencodedParser = bodyParser.urlencoded({ extended: false})
 
+// const client = new Client({
+//   user: 'postgres',
+//   host: '192.168.1.124',
+//   database: 'Frame_TV_DB',
+//   password: 'password',
+//   port: 5432,
+// })
 const client = new Client({
-  user: 'postgres',
-  host: '192.168.1.124',
+  user: 'jdrill',
+  host: 'localhost',
   database: 'Frame_TV_DB',
-  password: 'password',
+  password: 'Sail2588',
   port: 5432,
 })
 client.connect()
@@ -19,6 +26,8 @@ var str = "";
 
 app.set('view engine', 'ejs')
 app.use(express.static(path.join(__dirname, 'public')));
+// app.use(bodyParser.json())
+// app.use(bodyParser.urlencoded({ extended: true }))
 
 app.get('/', function (req, res) {
   res.render('index');
@@ -68,17 +77,21 @@ app.get('/schedule', function (req, res) {
 })
 
 app.post('/schedule', urlencodedParser, function(req, res){
-  console.log("test!");
-  // if (!req.body) return res.sendStatus(400)
-  // console.log(req);
-  // for (key_name in req.body) {
-  //
-  //   var query_string = 'UPDATE app_config \
-  //     SET setting_value = \'' + req.body[key_name] + '\' \
-  //     WHERE setting_name = \'' + key_name + '\';'
-  //
-  //   client.query(query_string, (err, data) => {
-  //     if (err) throw err;
+  if (!req.body) return res.sendStatus(400)
+  newSchedules = {}
+  newSchedules = JSON.parse(req.body.scheduleChanges);
+
+  for (key_name in newSchedules){
+    var query_string = "UPDATE public.schedule \
+    SET tv_state='" + newSchedules[key_name].tv_state + "' \
+    WHERE day='" + newSchedules[key_name].day + "' and \
+    time_range='" + newSchedules[key_name].time_range + "';"
+
+    client.query(query_string, (err, data) => {
+      if (err) throw err;
+      res.end();
+    })
+  }
 })
 
 app.get('/tvcontrol', function (req, res) {
