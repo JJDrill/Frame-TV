@@ -17,7 +17,7 @@ const client = new Client({
   user: 'jdrill',
   host: 'localhost',
   database: 'Frame_TV_DB',
-  password: 'Sail2588',
+  password: 'password',
   port: 5432,
 })
 client.connect()
