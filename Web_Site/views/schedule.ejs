@@ -12,22 +12,20 @@
   </header>
   <body>
     <div class="viewArea">
-      <!-- <div id="saveSuccess" class="alert alert-success alert-dismissible fade show" role="alert">
-        This is a success alert—check it out!
-      </div> -->
-      <div class="legendDiv">
-        <table align="center" class="table table-sm legend">
+      <div class="scheduleHeader">
+        <input id="saveButton" align="left" class="btn btn-primary" type="submit" value="Submit" onclick="saveChanges()">
+        <input id="cancelButton" align="left" class="btn btn-primary" type="reset" value="Reset" onclick="cancelChanges()">
+        <table align="right" class="table table-bordered table-sm legend">
           <tr>
-            <td data-state='ON'>TV Always On</td>
-            <td data-state='MOTION'>Motion Activated</td>
-            <td data-state='OFF'>TV Always Off</td>
+            <td data-state="ON">TV Always On</td>
+            <td data-state="MOTION">Motion Activated</td>
+            <td data-state="OFF">TV Always Off</td>
           </tr>
         </table>
       </div>
-      <div class="am_schedule"></div>
-      <div class="pm_schedule"></div>
-      <div>
-        <button id="saveButton" onclick="saveChanges()">Submit</button>
+      <div id="useSchedule">
+        <div class="am_schedule"></div>
+        <div class="pm_schedule"></div>
       </div>
     </div>
     <% include partials/scripts %>

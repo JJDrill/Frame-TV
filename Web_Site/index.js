@@ -6,20 +6,20 @@ var bodyParser = require('body-parser')
 var path = require('path')
 var urlencodedParser = bodyParser.urlencoded({ extended: false})
 
-// const client = new Client({
-//   user: 'postgres',
-//   host: '192.168.1.124',
-//   database: 'Frame_TV_DB',
-//   password: 'password',
-//   port: 5432,
-// })
 const client = new Client({
-  user: 'jdrill',
-  host: 'localhost',
+  user: 'postgres',
+  host: '192.168.1.124',
   database: 'Frame_TV_DB',
   password: 'password',
   port: 5432,
 })
+// const client = new Client({
+//   user: 'jdrill',
+//   host: 'localhost',
+//   database: 'Frame_TV_DB',
+//   password: 'password',
+//   port: 5432,
+// })
 client.connect()
 
 var str = "";
@@ -27,14 +27,13 @@ var str = "";
 app.set('view engine', 'ejs')
 app.use(express.static(path.join(__dirname, 'public')));
 // app.use(bodyParser.json())
-// app.use(bodyParser.urlencoded({ extended: true }))
 
 app.get('/', function (req, res) {
   res.render('index');
 })
 
 app.get('/settings', function (req, res) {
-  client.query('SELECT * FROM app_config;', (err, data) => {
+  client.query('SELECT setting_name, setting_value FROM app_config;', (err, data) => {
     if (err) throw err;
     res.render('settings', {
       app_settings: data.rows
@@ -44,24 +43,18 @@ app.get('/settings', function (req, res) {
 
 app.post('/settings', urlencodedParser, function(req, res){
   if (!req.body) return res.sendStatus(400)
+  settingsUpdates = JSON.parse(req.body.settingsChanges);
 
-  for (key_name in req.body) {
+  for (key_name in settingsUpdates) {
 
     var query_string = 'UPDATE app_config \
-      SET setting_value = \'' + req.body[key_name] + '\' \
+      SET setting_value = \'' + settingsUpdates[key_name] + '\' \
       WHERE setting_name = \'' + key_name + '\';'
 
     client.query(query_string, (err, data) => {
       if (err) throw err;
     })
   }
-
-  client.query('SELECT * FROM app_config;', (err, data) => {
-    if (err) throw err;
-    res.render('settings', {
-      app_settings: data.rows
-    });
-  })
 });
 
 app.get('/schedule', function (req, res) {
@@ -92,14 +85,6 @@ app.post('/schedule', urlencodedParser, function(req, res){
       res.end();
     })
   }
-})
-
-app.get('/tvcontrol', function (req, res) {
-  res.render('tvcontrol');
-})
-
-app.get('/graphs', function (req, res) {
-  res.render('graphs');
 })
 
 app.route('/logs').get(function(req, res)

@@ -5,25 +5,64 @@
   </head>
   <header>
     <% include partials/header %>
+    <script>
+      var input_data = <%-JSON.stringify(app_settings)%>
+    </script>
   </header>
   <body>
     <div class="viewArea">
-      <form method="POST" action="/settings">
-        <% app_settings.forEach(function(data) { %>
-          <div class="form-group row">
-            <label for=<%= data.setting_name %> class="col-sm-3 col-form-label col-form-label-sm"><%= data.setting_name %></label>
-            <div class="col-sm-2">
-              <input type="number" class="form-control form-control-sm" id="colFormLabelSm" name="<%= data.setting_name %>" placeholder="" value="<%= data.setting_value %>">
-            </div>
+      <div class="">
+        <div class="form-group row">
+          <table id="selectTvModeType" align="left" class="table table-bordered table-sm">
+            <tr>
+              <td><button id="tvModeOn" type="button" onclick="selectTvMode(this)" class="btn btn-secondary btn-sm">Disabled</button></td>
+              <td class="legend" data-state="ON">TV Always On</td>
+              <td>The TV will ignore motion decetection and remain on at all times.</td>
+            </tr>
+            <tr>
+              <td><button id="tvModeMotion" type="button" onclick="selectTvMode(this)" class="btn btn-secondary btn-sm">Disabled</button></td>
+              <td class="legend" data-state="MOTION">Motion Activated</td>
+              <td>The TV will only be turned on if motion is dected.</td>
+            </tr>
+            <tr>
+              <td><button id="tvModeOff" type="button" onclick="selectTvMode(this)" class="btn btn-secondary btn-sm">Disabled</button></td>
+              <td class="legend" data-state="OFF">TV Always Off</td>
+              <td>The TV will ignore motion decetection and remain off at all times.</td>
+            </tr>
+            <tr>
+              <td><button id="tvModeSchedule" type="button" onclick="selectTvMode(this)" class="btn btn-secondary btn-sm">Disabled</button></td>
+              <td class="legend" data-state="MOTION">Scheduled</td>
+              <td>A schedule is setup which will follow when you want the TV to either be on, off, or follow motion detection.
+                <a class="nav-link" href="/schedule">Click here to change the schedule settings.</a>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="form-group row">
+          <label for="Screen Saver Duration" class="col-sm-3 col-form-label col-form-label-sm">Screen Saver Duration</label>
+          <div class="col-sm-2">
+            <input type="number" class="form-control form-control-sm" id="screen_saver_duration" name="Screen Saver Duration" value="">
           </div>
-          <% }); %>
-          <div class="form-group row">
-            <div class="col-sm-2">
-              <button type="submit" class="btn btn-primary">Save Settings</button>
-            </div>
+        </div>
+        <div class="form-group row">
+          <label for="TV Timeout" class="col-sm-3 col-form-label col-form-label-sm">TV Timeout</label>
+          <div class="col-sm-2">
+            <input type="number" class="form-control form-control-sm" id="tv_timeout" name="TV Timeout" value="">
           </div>
-        </form>
-        <% include partials/scripts %>
-      </body>
-    </div>
+        </div>
+        <div class="form-group row">
+          <label for="TV Timeout Motion Threshold" class="col-sm-3 col-form-label col-form-label-sm">TV Timeout Motion Threshold</label>
+          <div class="col-sm-2">
+            <input type="number" class="form-control form-control-sm" id="tv_timeout_motion_threshold" name="TV Timeout Motion Threshold" value="">
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="col-sm-2">
+            <button type="submit" onclick="saveSettings()" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
+    <% include partials/scripts %>
+    <script src="../js/settings.js"></script>
+  </body>
 </html>

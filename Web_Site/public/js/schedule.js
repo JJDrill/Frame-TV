@@ -2,6 +2,7 @@ $(document).ready(function() {
   scheduleChanges={}
   scheduleData=normalizeInputData(input_data)
   document.getElementById("saveButton").disabled = true;
+  document.getElementById("cancelButton").disabled = true;
 
   // AM Table
   var am_table = $("<table/>").addClass('table table-bordered table-sm');
@@ -73,12 +74,25 @@ $(document).ready(function() {
   $('div.pm_schedule').append(pm_table);
 });
 
+function useStaticMode() {
+  document.getElementById("useStaticMode").hidden = false;
+  document.getElementById("useSchedule").hidden = true;
+}
+
+function useScheduleMode() {
+  document.getElementById("useStaticMode").hidden = true;
+  document.getElementById("useSchedule").hidden = false;
+}
+
 function saveChanges() {
   $.post('/schedule', { scheduleChanges: JSON.stringify(scheduleChanges) });
   scheduleChanges = {}
   document.getElementById("saveButton").disabled = true;
-  // document.getElementById("saveSuccess").hidden = false;
-  // $('.alert').alert()
+  document.getElementById("cancelButton").disabled = true;
+}
+
+function cancelChanges() {
+  location.reload();
 }
 
 function changeScheduleState(cell) {
@@ -107,6 +121,7 @@ function changeScheduleState(cell) {
 
   scheduleChanges[myKey]=changes
   document.getElementById("saveButton").disabled = false;
+  document.getElementById("cancelButton").disabled = false;
 }
 
 function normalizeInputData(data) {
