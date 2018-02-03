@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const { Client } = require('pg')
 var bodyParser = require('body-parser')
+const tv = require('./data/tv_control')
 
 var path = require('path')
 var urlencodedParser = bodyParser.urlencoded({ extended: false})
@@ -30,6 +31,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', function (req, res) {
   res.render('index');
+})
+
+app.get('/tvcontrol', function (req, res) {
+  res.render('tvcontrol');
+})
+
+app.get('/tvcontrol/previous', function (req, res) {
+  tv.Display_Picture_Previous();
+  res.render('tvcontrol');
+})
+
+app.get('/tvcontrol/next', function (req, res) {
+  tv.Display_Picture_Next();
+  res.render('tvcontrol');
 })
 
 app.get('/settings', function (req, res) {

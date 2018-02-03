@@ -7,14 +7,11 @@
     <% include partials/header %>
   </header>
   <body>
-    <div class="btn-group btn-group-toggle" data-toggle="buttons">
-      <label class="btn btn-secondary active">
-        <input type="radio" name="options" id="option1" autocomplete="off" checked> On
-      </label>
-      <label class="btn btn-secondary">
-        <input type="radio" name="options" id="option2" autocomplete="off"> Off
-      </label>
-    </div>
+    <div class="viewArea">
+      <button type="button" onclick="displayPicturePrevious()" class="btn btn-outline-success">View Previous Picture</button>
+      <button type="button" onclick="displayPictureNext()" class="btn btn-outline-success">View Next Picture</button>
       <% include partials/scripts %>
+      <script src="../js/tvcontrol.js"></script>
+    </div>
   </body>
 </html>
