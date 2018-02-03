@@ -8,6 +8,10 @@ module.exports = {
 
   Display_Picture_Next: function() {
     ks.sendKey('right');
+  },
+
+  Reset_Slideshow: function() {
+    ks.sendKey('escape');
   }
 
 }

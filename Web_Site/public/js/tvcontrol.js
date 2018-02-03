@@ -6,3 +6,7 @@ function displayPicturePrevious(){
 function displayPictureNext(){
   $.get('/tvcontrol/next');
 }
+
+function resetSlideshow(){
+  $.get('/tvcontrol/reset');
+}

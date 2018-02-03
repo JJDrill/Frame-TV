@@ -47,6 +47,11 @@ app.get('/tvcontrol/next', function (req, res) {
   res.render('tvcontrol');
 })
 
+app.get('/tvcontrol/reset', function (req, res) {
+  tv.Reset_Slideshow();
+  res.render('tvcontrol');
+})
+
 app.get('/settings', function (req, res) {
   client.query('SELECT setting_name, setting_value FROM app_config;', (err, data) => {
     if (err) throw err;

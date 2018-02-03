@@ -2,14 +2,23 @@
 <html lang="en">
   <head>
     <% include partials/head %>
+    <link rel="stylesheet" href="../css/tvcontrol.css">
   </head>
   <header>
     <% include partials/header %>
   </header>
   <body>
     <div class="viewArea">
-      <button type="button" onclick="displayPicturePrevious()" class="btn btn-outline-success">View Previous Picture</button>
-      <button type="button" onclick="displayPictureNext()" class="btn btn-outline-success">View Next Picture</button>
+      <div class="slideshowControl">
+        <div class="slideshowControlsHeader">
+          <h4>Slideshow Controls</h4>
+        </div>
+        <div class="slideshowControlButtons">
+          <button type="button" onclick="displayPicturePrevious()" class="btn btn-outline-primary">View Previous Picture</button>
+          <button type="button" onclick="displayPictureNext()" class="btn btn-outline-primary">View Next Picture</button>
+          <button type="button" onclick="resetSlideshow()" class="btn btn-outline-warning">Reset Slideshow</button>
+        </div>
+      </div>
       <% include partials/scripts %>
       <script src="../js/tvcontrol.js"></script>
     </div>
