@@ -1,12 +1,12 @@
 
 function displayPicturePrevious(){
-  $.get('/tvcontrol/previous');
+  $.post('/tvcontrol', { action: 'previous' });
 }
 
 function displayPictureNext(){
-  $.get('/tvcontrol/next');
+  $.post('/tvcontrol', { action: "next" });
 }
 
 function resetSlideshow(){
-  $.get('/tvcontrol/reset');
+  $.post('/tvcontrol', { action: "reset" });
 }

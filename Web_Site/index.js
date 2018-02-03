@@ -27,7 +27,6 @@ var str = "";
 
 app.set('view engine', 'ejs')
 app.use(express.static(path.join(__dirname, 'public')));
-// app.use(bodyParser.json())
 
 app.get('/', function (req, res) {
   res.render('index');
@@ -37,18 +36,18 @@ app.get('/tvcontrol', function (req, res) {
   res.render('tvcontrol');
 })
 
-app.get('/tvcontrol/previous', function (req, res) {
-  tv.Display_Picture_Previous();
-  res.render('tvcontrol');
-})
+app.post('/tvcontrol', urlencodedParser, function (req, res) {
 
-app.get('/tvcontrol/next', function (req, res) {
-  tv.Display_Picture_Next();
-  res.render('tvcontrol');
-})
+  if (req.body.action === "previous") {
+    tv.Display_Picture_Previous();
+  } else if (req.body.action === "next") {
+    tv.Display_Picture_Next();
+  } else if (req.body.action === "reset") {
+    tv.Reset_Slideshow();
+  } else {
+    console.log("Error: Action not found: " + req.body.action);
+  }
 
-app.get('/tvcontrol/reset', function (req, res) {
-  tv.Reset_Slideshow();
   res.render('tvcontrol');
 })
 
