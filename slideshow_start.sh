@@ -16,17 +16,10 @@
 # for fullscreen to be done. Example:
 # "./slideshow_start.sh 120"
 
-export PGPASSWORD="password"
 DIR=$( cd "$( dirname "$0" )" && pwd)
 DIR=$DIR/Pictures
 delay=$1
-QUERY="SELECT setting_value FROM app_config WHERE setting_name = 'TV Timeout'"
-slideshow_speed=`psql -tc "$QUERY" Frame_TV_DB postgres`
-
-# If we didn't get a number from the DB use a default
-if [[ slideshow_speed="" ]]; then
-  slideshow_speed=600
-fi
+slideshow_speed=600
 
 # If argument empty use default.
 if [ -z "$1" ]; then

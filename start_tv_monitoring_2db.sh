@@ -6,8 +6,7 @@ GPIO="15"
 
 # How often we check the staus of the TV
 TvStatusCheck=5
-TV_SCHEDULE_CHECK=50
-ON_OFF_SLEEP=10
+ON_OFF_SLEEP=60
 
 # Turn the TV OFF settings in seconds
 # e.g. - Every 300 seconds (Tv_Off_Check) if there are less
@@ -15,9 +14,11 @@ ON_OFF_SLEEP=10
 #	 turn the TV to standby mode.
 QUERY="SELECT setting_value FROM app_config WHERE setting_name = 'TV Timeout'"
 Tv_Off_Check=`psql -tc "$QUERY" Frame_TV_DB postgres`
+#Tv_Off_Check=1800
 
 QUERY="SELECT setting_value FROM app_config WHERE setting_name = 'TV Timeout Motion Threshold'"
 Tv_Off_Threshold=`psql -tc "$QUERY" Frame_TV_DB postgres`
+#Tv_Off_Threshold=15
 
 # TV Activity Wait
 # Wait time to give the TV some rest after performing some CEC activity
@@ -78,59 +79,42 @@ echo "in" > /sys/class/gpio/gpio$GPIO/direction
 motionCount=0
 motionTotal=0
 FIRST_RUN=true
-# set this to 60 at first so we get our schedule for the script start
-TV_SCHEDULE_COUNT=100
-TV_SCHEDULE=''
 
 while true; do
-	# Get the TV mode
-	QUERY="SELECT setting_value FROM app_config WHERE setting_name='TV Mode'"
-        TV_MODE=`psql -tc "$QUERY" Frame_TV_DB postgres`
-	echo TV_Mode: $TV_MODE
-
-	if [ $TV_MODE = "Static_On" ]; then
-		TV_SCHEDULE="ON"
-	elif [ $TV_MODE = "Static_Off" ]; then
-		TV_SCHEDULE="OFF"
-	elif [ $TV_MODE = "Scheduled" ]; then
-
-	        if [ $TV_SCHEDULE_COUNT -ge $TV_SCHEDULE_CHECK ]; then
-
-                	if   [ $CURRENT_MINUTE -lt "15" ]; then M=00
-                	elif [ $CURRENT_MINUTE -lt "30" ]; then M=15
-                	elif [ $CURRENT_MINUTE -lt "45" ]; then M=30
-                	else M=45
-                	fi
-
-                	CURRENT_DAY=$(date +%A)
-                	CURRENT_TIME=$(date +%H):$M:00
-                	QUERY="SELECT tv_state FROM schedule WHERE day='$CURRENT_DAY' and time_range='$CURRENT_TIME'"
-                	TV_SCHEDULE=`psql -tc "$QUERY" Frame_TV_DB postgres`
-                	echo $QUERY
-                	echo TV_Schedule: $TV_SCHEDULE
-                	TV_SCHEDULE_COUNT=0
-        	fi
-#	fi
-
   	# Get the TV schedule for this period
-	CURRENT_MINUTE=$(date +%-M)
+	CURRENT_MINUTE=$(date +%m)
+	modulo=$(( $CURRENT_MINUTE % 15 ))
 
-	if [ $TV_SCHEDULE_COUNT -ge $TV_SCHEDULE_CHECK ]; then
-
-                if   [ $CURRENT_MINUTE -lt "15" ]; then M=00
-                elif [ $CURRENT_MINUTE -lt "30" ]; then M=15
-                elif [ $CURRENT_MINUTE -lt "45" ]; then M=30
-                else M=45
-                fi
+	if [ $FIRST_RUN = "true" ]; then
+		if   [ $CURRENT_MINUTE -lt "15" ]; then
+			M=00
+			ON_OFF_SLEEP=$(( (15 - $CURRENT_MINUTE)*60 ))
+		elif [ $CURRENT_MINUTE -lt "30" ]; then
+			M=15
+			ON_OFF_SLEEP=$(( (30-$CURRENT_MINUTE)*60 ))
+		elif [ $CURRENT_MINUTE -lt "45" ]; then
+			M=30
+			ON_OFF_SLEEP=$(( (45-$CURRENT_MINUTE)*60 ))
+		else
+			M=45
+			ON_OFF_SLEEP=$(( (60-$CURRENT_MINUTE)*60 ))
+		fi
 
 		CURRENT_DAY=$(date +%A)
 		CURRENT_TIME=$(date +%H):$M:00
 		QUERY="SELECT tv_state FROM schedule WHERE day='$CURRENT_DAY' and time_range='$CURRENT_TIME'"
 		TV_SCHEDULE=`psql -tc "$QUERY" Frame_TV_DB postgres`
-		echo $QUERY
+		#echo $QUERY
 		echo TV_Schedule: $TV_SCHEDULE
-		TV_SCHEDULE_COUNT=0
-	fi
+		FIRST_RUN=false
+	elif [ "$modulo" -eq 0 ]; then
+		CURRENT_DAY=$(date +%A)
+		CURRENT_TIME=$(date +%H:%M):00
+
+		QUERY="SELECT tv_state FROM schedule WHERE day='$CURRENT_DAY' and time_range='$CURRENT_TIME'"
+		TV_SCHEDULE=`psql -tc "$QUERY" Frame_TV_DB postgres`
+		echo $TV_SCHEDULE
+#		ON_OFF_SLEEP=60
 	fi
 
   	# TV state is ON or OFF
@@ -147,7 +131,6 @@ while true; do
 		fi
 
 		sleep $ON_OFF_SLEEP
-		TV_SCHEDULE_COUNT=$(($TV_SCHEDULE_COUNT + $ON_OFF_SLEEP))
 		continue
 	fi
 
@@ -162,7 +145,6 @@ while true; do
                 	echo
                 fi
                 sleep $ON_OFF_SLEEP
-		TV_SCHEDULE_COUNT=$(($TV_SCHEDULE_COUNT + $ON_OFF_SLEEP))
                 continue
         fi
 
@@ -225,5 +207,4 @@ while true; do
 	fi
 
 	sleep 1.0
-	TV_SCHEDULE_COUNT=$(($TV_SCHEDULE_COUNT + 1))
 done
