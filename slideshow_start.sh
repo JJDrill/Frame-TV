@@ -15,11 +15,14 @@
 # HOW TO USE: Start the script with the number of seconds you want the checks
 # for fullscreen to be done. Example:
 # "./slideshow_start.sh 120"
+export PGPASSWORD="password"
+
+QUERY="SELECT setting_value FROM app_config WHERE setting_name = 'Screen Saver Duration'"
+slideshow_speed=`psql -tc "$QUERY" Frame_TV_DB postgres`
 
 DIR=$( cd "$( dirname "$0" )" && pwd)
 DIR=$DIR/Pictures
 delay=$1
-slideshow_speed=600
 
 # If argument empty use default.
 if [ -z "$1" ]; then
