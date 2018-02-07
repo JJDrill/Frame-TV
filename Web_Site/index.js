@@ -21,6 +21,14 @@ const client = new Client({
 //   password: 'password',
 //   port: 5432,
 // })
+// const client = new Client({
+//   user: 'jdrill',
+//   host: 'localhost',
+//   database: 'Frame_TV_DB_Test',
+//   password: 'password',
+//   port: 5432,
+// })
+
 client.connect()
 
 var str = "";
