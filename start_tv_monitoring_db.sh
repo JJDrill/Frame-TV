@@ -95,42 +95,40 @@ while true; do
 	elif [ $TV_MODE = "Scheduled" ]; then
 
 	        if [ $TV_SCHEDULE_COUNT -ge $TV_SCHEDULE_CHECK ]; then
+						if   [ $CURRENT_MINUTE -lt "15" ]; then M=00
+						elif [ $CURRENT_MINUTE -lt "30" ]; then M=15
+						elif [ $CURRENT_MINUTE -lt "45" ]; then M=30
+						else M=45
+						fi
 
-                	if   [ $CURRENT_MINUTE -lt "15" ]; then M=00
-                	elif [ $CURRENT_MINUTE -lt "30" ]; then M=15
-                	elif [ $CURRENT_MINUTE -lt "45" ]; then M=30
-                	else M=45
-                	fi
-
-                	CURRENT_DAY=$(date +%A)
-                	CURRENT_TIME=$(date +%H):$M:00
-                	QUERY="SELECT tv_state FROM schedule WHERE day='$CURRENT_DAY' and time_range='$CURRENT_TIME'"
-                	TV_SCHEDULE=`psql -tc "$QUERY" Frame_TV_DB postgres`
-                	echo $QUERY
-                	echo TV_Schedule: $TV_SCHEDULE
-                	TV_SCHEDULE_COUNT=0
+						CURRENT_DAY=$(date +%A)
+						CURRENT_TIME=$(date +%H):$M:00
+						QUERY="SELECT tv_state FROM schedule WHERE day='$CURRENT_DAY' and time_range='$CURRENT_TIME'"
+						TV_SCHEDULE=`psql -tc "$QUERY" Frame_TV_DB postgres`
+						echo $QUERY
+						echo TV_Schedule: $TV_SCHEDULE
+						TV_SCHEDULE_COUNT=0
         	fi
-#	fi
 
   	# Get the TV schedule for this period
-	CURRENT_MINUTE=$(date +%-M)
+		CURRENT_MINUTE=$(date +%-M)
 
-	if [ $TV_SCHEDULE_COUNT -ge $TV_SCHEDULE_CHECK ]; then
+		if [ $TV_SCHEDULE_COUNT -ge $TV_SCHEDULE_CHECK ]; then
 
-                if   [ $CURRENT_MINUTE -lt "15" ]; then M=00
-                elif [ $CURRENT_MINUTE -lt "30" ]; then M=15
-                elif [ $CURRENT_MINUTE -lt "45" ]; then M=30
-                else M=45
-                fi
+			if   [ $CURRENT_MINUTE -lt "15" ]; then M=00
+			elif [ $CURRENT_MINUTE -lt "30" ]; then M=15
+			elif [ $CURRENT_MINUTE -lt "45" ]; then M=30
+			else M=45
+			fi
 
-		CURRENT_DAY=$(date +%A)
-		CURRENT_TIME=$(date +%H):$M:00
-		QUERY="SELECT tv_state FROM schedule WHERE day='$CURRENT_DAY' and time_range='$CURRENT_TIME'"
-		TV_SCHEDULE=`psql -tc "$QUERY" Frame_TV_DB postgres`
-		echo $QUERY
-		echo TV_Schedule: $TV_SCHEDULE
-		TV_SCHEDULE_COUNT=0
-	fi
+			CURRENT_DAY=$(date +%A)
+			CURRENT_TIME=$(date +%H):$M:00
+			QUERY="SELECT tv_state FROM schedule WHERE day='$CURRENT_DAY' and time_range='$CURRENT_TIME'"
+			TV_SCHEDULE=`psql -tc "$QUERY" Frame_TV_DB postgres`
+			echo $QUERY
+			echo TV_Schedule: $TV_SCHEDULE
+			TV_SCHEDULE_COUNT=0
+		fi
 	fi
 
   	# TV state is ON or OFF
@@ -138,12 +136,13 @@ while true; do
 		tvStatus=$( getTvPowerStatus )
 
 		if [ "$tvStatus" = "standby" ]; then
-                        motionCount=0
+			motionCount=0
 			motionTotal=0
-			QUERY="INSERT INTO logs (activity, time_stamp, motion_total, motion_count) VALUES ('TV ON', '$( date '+%Y-%m-%d %H:%M:%S' )', '0', '0')"
-                        psql -c "$QUERY" Frame_TV_DB postgres
-                        echo Turning TV On - $( getTime )
-                        setTvPower "on"
+			QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'TV ON', 'TV turned on per schedule.')"
+			# QUERY="INSERT INTO logs (activity, time_stamp, motion_total, motion_count) VALUES ('TV ON', '$( date '+%Y-%m-%d %H:%M:%S' )', '0', '0')"
+			psql -c "$QUERY" Frame_TV_DB postgres
+			echo Turning TV On - $( getTime )
+			setTvPower "on"
 		fi
 
 		sleep $ON_OFF_SLEEP
@@ -152,19 +151,22 @@ while true; do
 	fi
 
 	if [ $TV_SCHEDULE = 'OFF' ]; then
-                tvStatus=$( getTvPowerStatus )
+		tvStatus=$( getTvPowerStatus )
 
-                if [ "$tvStatus" = "on" ]; then
-                        echo Turning TV Off - $( getTime )
-			QUERY="INSERT INTO logs (activity, time_stamp, motion_total, motion_count) VALUES ('TV OFF', '$( date '+%Y-%m-%d %H:%M:%S' )', '0', '0')"
-                	psql -c "$QUERY" Frame_TV_DB postgres
-               		setTvPower "standby"
-                	echo
-                fi
-                sleep $ON_OFF_SLEEP
+		if [ "$tvStatus" = "on" ]; then
+			echo Turning TV Off - $( getTime )
+			QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'TV OFF', 'TV turned off per schedule.')"
+
+			# QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('TV OFF', '$( date '+%Y-%m-%d %H:%M:%S' )', '0', '0')"
+			psql -c "$QUERY" Frame_TV_DB postgres
+			setTvPower "standby"
+			echo
+		fi
+
+		sleep $ON_OFF_SLEEP
 		TV_SCHEDULE_COUNT=$(($TV_SCHEDULE_COUNT + $ON_OFF_SLEEP))
-                continue
-        fi
+		continue
+	fi
 
 	# TV state is MOTION
 	MotionStatus=$( getMotionStatus )
@@ -174,21 +176,19 @@ while true; do
 		motionCount=$(($motionCount + 1))
 		echo Motion detected - $( getTime ): $motionTotal / $motionCount
 
-		QUERY="INSERT INTO logs (activity, time_stamp, motion_total, motion_count) VALUES ('MOTION', '$( date '+%Y-%m-%d %H:%M:%S' )', '$motionTotal', '$motionCount')"
+		# QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('MOTION', '$( date '+%Y-%m-%d %H:%M:%S' )', '$motionTotal', '$motionCount')"
+		QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'MOTION', 'Motion dectected after $motionTotal seconds. Motion count is $motionCount.')"
 		psql -c "$QUERY" Frame_TV_DB postgres
 
-		#echo $( getTime ): $motionTotal / $motionCount
 		tvStatus=$( getTvPowerStatus )
-
-		# Debug
-		#echo TV Status: $tvStatus
 
 		if [ "$tvStatus" = "standby" ]; then
 			motionCount=0
 			motionTotal=0
 
-			QUERY="INSERT INTO logs (activity, time_stamp, motion_total, motion_count) VALUES ('TV ON', '$( date '+%Y-%m-%d %H:%M:%S' )', '$motionTotal', '$motionCount')"
-                	psql -c "$QUERY" Frame_TV_DB postgres
+			# QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('TV ON', '$( date '+%Y-%m-%d %H:%M:%S' )', '$motionTotal', '$motionCount')"
+			QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'TV ON', 'TV turned on becuase of motion dectection.')"
+			psql -c "$QUERY" Frame_TV_DB postgres
 
 			echo Turning TV On - $( getTime ): $motionTotal / $motionCount
 			setTvPower "on"
@@ -202,9 +202,11 @@ while true; do
 		tvStatus=$( getTvPowerStatus )
 
 		if [ "$tvStatus" = "on" ]; then
+
 			if [ $motionCount -le $Tv_Off_Threshold ]; then
 				echo Turning TV Off - $( getTime ): $motionTotal / $motionCount
-				QUERY="INSERT INTO logs (activity, time_stamp, motion_total, motion_count) VALUES ('TV OFF', '$( date '+%Y-%m-%d %H:%M:%S' )', '$motionTotal', '$motionCount')"
+				# QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('TV OFF', '$( date '+%Y-%m-%d %H:%M:%S' )', '$motionTotal', '$motionCount')"
+				QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'TV ON', 'TV turned off becuase of lack of motion.')"
 				psql -c "$QUERY" Frame_TV_DB postgres
 
 				setTvPower "standby"
