@@ -139,6 +139,15 @@ app.get('/logs/:date', function (req, res) {
   })
 })
 
+app.delete('/logs/:date', function (req, res) {
+  var query_string = 'DELETE FROM logs WHERE time_stamp::date = \'' + req.params.date + '\''
+
+  client.query(query_string, (err, logData) => {
+    if (err) throw err;
+    res.end();
+  })
+})
+
 app.route('/logs_all').get(function(req, res)
 {
 	client.query('SELECT * FROM logs;', (err, txt) => {
