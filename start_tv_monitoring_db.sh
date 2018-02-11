@@ -199,7 +199,7 @@ while true; do
 
 			if [ $motionCount -le $Tv_Off_Threshold ]; then
 				echo Turning TV Off - $( getTime ): $motionTotal / $motionCount
-				QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'TV ON', 'TV turned off becuase of lack of motion.')"
+				QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'TV OFF', 'TV turned off becuase of lack of motion.')"
 				psql -c "$QUERY" Frame_TV_DB postgres
 
 				setTvPower "standby"
