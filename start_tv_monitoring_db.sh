@@ -95,7 +95,7 @@ while true; do
 	elif [ $TV_MODE = "Scheduled" ]; then
 		CURRENT_MINUTE=$(date +%m)
 
-	        if [ $TV_SCHEDULE_COUNT -ge $TV_SCHEDULE_CHECK ]; then
+		if [ $TV_SCHEDULE_COUNT -ge $TV_SCHEDULE_CHECK ]; then
 			if   [ $CURRENT_MINUTE -lt "15" ]; then M=00
 			elif [ $CURRENT_MINUTE -lt "30" ]; then M=15
 			elif [ $CURRENT_MINUTE -lt "45" ]; then M=30
@@ -109,7 +109,7 @@ while true; do
 			echo $QUERY
 			echo TV_Schedule: $TV_SCHEDULE
 			TV_SCHEDULE_COUNT=0
-        	fi
+		fi
 
   	# Get the TV schedule for this period
 		CURRENT_MINUTE=$(date +%-M)

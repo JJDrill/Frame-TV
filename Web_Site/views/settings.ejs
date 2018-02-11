@@ -22,7 +22,7 @@
             <tr>
               <td><button id="tvModeMotion" type="button" onclick="selectTvMode(this)" class="btn btn-secondary btn-sm">Disabled</button></td>
               <td class="legend" data-state="MOTION">Motion Activated</td>
-              <td>The TV will only be turned on if motion is dected.</td>
+              <td>The TV will only be turned on if motion is dected. After the 'TV Timeout' has been reached we will turn off the TV again if our total motion dectections are below the 'TV Timeout Motion Threshold'. For example, we will turn the TV off again after 600 seconds (TV Timeout) if the total recorded motion detections are below 10 (TV Timeout Motion Threshold).</td>
             </tr>
             <tr>
               <td><button id="tvModeOff" type="button" onclick="selectTvMode(this)" class="btn btn-secondary btn-sm">Disabled</button></td>
