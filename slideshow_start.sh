@@ -19,9 +19,9 @@ export PGPASSWORD="password"
 
 QUERY="SELECT setting_value FROM app_config WHERE setting_name = 'Screen Saver Duration'"
 slideshow_speed=`psql -tc "$QUERY" Frame_TV_DB postgres`
+echo "Slideshow Speed: " $slideshow_speed
 
-DIR=$( cd "$( dirname "$0" )" && pwd)
-DIR=$DIR/Pictures
+DIR=/home/pi/Google_Drive/Picture_Frame/Pictures
 delay=$1
 
 # If argument empty use default.
