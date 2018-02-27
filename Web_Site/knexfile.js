@@ -1,5 +1,15 @@
 module.exports = {
 
+  prod: {
+    client: 'pg',
+    connection: {
+    	host: 'localhost',
+    	user: 'postgres',
+    	password: 'password',
+    	database: 'Frame_TV_DB'
+    }
+  },
+  
   production: {
     client: 'pg',
     connection: {
