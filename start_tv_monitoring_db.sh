@@ -68,7 +68,7 @@ getMotionStatus()
 
 getTime()
 {
-	date +"%T"
+	date +"%R"
 }
 
 # Set up GPIO and set to input
@@ -172,8 +172,17 @@ while true; do
 
 	if [ "$MotionStatus" = "Motion" ]; then
 		motionCount=$(($motionCount + 1))
-		echo Motion detected - $( getTime ): $motionTotal / $motionCount
-		QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'MOTION', 'Motion dectected after $motionTotal seconds. Motion count is $motionCount.')"
+		start=$( date +"%s%N" )
+		
+		while [ "$MotionStatus" = "Motion" ] ; do
+			sleep 0.5
+			MotionStatus=$( getMotionStatus )
+			echo In loop: "$MotionStatus"
+		done
+		
+		totalTime=$((($(date +"%s%N") - $start)/1000000))
+		echo Motion detected - $( getTime ): Total Seconds: $totalTime
+		QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'MOTION', 'Motion dectected after $motionTotal seconds. Motion count is $motionCount. Motion duration: $totalTime')"
 		psql -c "$QUERY" Frame_TV_DB postgres
 
 		tvStatus=$( getTvPowerStatus )
