@@ -129,13 +129,22 @@ app.route('/logs').get(function(req, res)
 
 app.get('/logs/:date', function (req, res) {
   var query_string = 'SELECT *, to_char(time_stamp, \'HH12:MI:SS\') as time \
-  FROM logs WHERE time_stamp::date = \'' + req.params.date + '\';'
+  FROM logs WHERE time_stamp::date = \'' + req.params.date + '\' ORDER BY time DESC;'
 
   client.query(query_string, (err, logData) => {
     if (err) throw err;
     res.render('logs', {
       logData: logData.rows
     });
+  })
+})
+
+app.delete('/logs/:date', function (req, res) {
+  var query_string = 'DELETE FROM logs WHERE time_stamp::date = \'' + req.params.date + '\''
+
+  client.query(query_string, (err, logData) => {
+    if (err) throw err;
+    res.end();
   })
 })
 

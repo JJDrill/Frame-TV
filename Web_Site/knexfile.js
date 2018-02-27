@@ -12,10 +12,12 @@ module.exports = {
   
   production: {
     client: 'pg',
-    host: 'postgres://192.168.1.124/Frame_TV_DB',
-    port: '5432',
-    user: 'postgres',
-    password: 'password'
+    connection: {
+      host: 'localhost',
+      user: 'postgres',
+      password: 'password',
+      database: 'Frame_TV_DB'
+    }
   },
 
   development: {

@@ -10,16 +10,21 @@
     <div class="viewArea">
       <table class="table table-striped table-hover table-sm">
         <tr>
-          <th>Days which having logging</th>
+          <th>Day</th>
+          <th>Delete</th>
         </tr>
 
         <% logList.forEach(function(data) { %>
           <tr>
             <td><a href="/logs/<%= data.day %>"><%= data.day %></a></td>
+            <td>
+              <input id="deleteButton" align="left" class="btn btn-danger" value="Delete Logs" onclick="deleteLogs('<%= data.day %>')">
+            </td>
           </tr>
           <% }); %>
         </table>
         <% include partials/scripts %>
+        <script src="../js/logs_list.js"></script>
     </div>
   </body>
 </html>
