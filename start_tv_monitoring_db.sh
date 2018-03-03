@@ -19,6 +19,8 @@ Tv_Off_Check=`psql -tc "$QUERY" Frame_TV_DB postgres`
 QUERY="SELECT setting_value FROM app_config WHERE setting_name = 'TV Timeout Motion Threshold'"
 Tv_Off_Threshold=`psql -tc "$QUERY" Frame_TV_DB postgres`
 
+MOTION_SENSITIVITY_QUERY="SELECT setting_value FROM app_config WHERE setting_name = 'Motion Sensitivity'"
+
 # TV Activity Wait
 # Wait time to give the TV some rest after performing some CEC activity
 CEC_Wait=1
@@ -171,18 +173,36 @@ while true; do
 	motionTotal=$(($motionTotal + 1))
 
 	if [ "$MotionStatus" = "Motion" ]; then
-		motionCount=$(($motionCount + 1))
+		MOTION_SENSITIVITY=`psql -tc "$MOTION_SENSITIVITY_QUERY" Frame_TV_DB postgres`
+		echo Motion Sensitivity: $MOTION_SENSITIVITY
+		sentivitityReached=false
 		start=$( date +"%s%N" )
 		
 		while [ "$MotionStatus" = "Motion" ] ; do
 			sleep 0.5
+			totalTime=$((($(date +"%s%N") - $start)/1000000))
+			
+			if [ $totalTime -gt $MOTION_SENSITIVITY ]; then
+				sentivitityReached=true
+				break
+			fi
+			
 			MotionStatus=$( getMotionStatus )
 			echo In loop: "$MotionStatus"
 		done
 		
 		totalTime=$((($(date +"%s%N") - $start)/1000000))
 		echo Motion detected - $( getTime ): Total Seconds: $totalTime
-		QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'MOTION', 'Motion dectected after $motionTotal seconds. Motion count is $motionCount. Motion duration: $totalTime')"
+		
+		# If we did not reach out sensitivity metric we won't count this as motion detected
+		if [ $sentivitityReached = "false" ]; then
+			QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'MOTION', 'Motion of $totalTime milliseconds detected but did not reach sensitivity of $MOTION_SENSITIVITY milliseconds.')"
+			psql -c "$QUERY" Frame_TV_DB postgres
+			continue
+		fi
+		
+		motionCount=$(($motionCount + 1))
+		QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'MOTION', 'Motion detected after $motionTotal seconds. (Count: $motionCount - Duration: $totalTime)')"
 		psql -c "$QUERY" Frame_TV_DB postgres
 
 		tvStatus=$( getTvPowerStatus )
