@@ -11,6 +11,9 @@ $(document).ready(function() {
     } else if ("TV Timeout Motion Threshold" === input_data[i].setting_name) {
       $("#tv_timeout_motion_threshold").val(input_data[i].setting_value);
 
+    } else if ("Motion Sensitivity" === input_data[i].setting_name) {
+      $("#motion_sensitivity").val(input_data[i].setting_value);
+
     } else if ("TV Mode" === input_data[i].setting_name) {
       disableAllTvModeButtons()
 
@@ -33,6 +36,7 @@ function saveSettings() {
   dataToSave["Screen Saver Duration"] = document.getElementById("screen_saver_duration").value;
   dataToSave["TV Timeout"] = document.getElementById("tv_timeout").value;
   dataToSave["TV Timeout Motion Threshold"] = document.getElementById("tv_timeout_motion_threshold").value;
+  dataToSave["Motion Sensitivity"] = document.getElementById("motion_sensitivity").value;
 
   if (document.getElementById("tvModeOn").innerHTML === "Enabled") {
     dataToSave["TV Mode"] = "Static_On";

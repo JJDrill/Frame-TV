@@ -18,6 +18,9 @@ exports.seed = function(knex, Promise) {
       }),
       knex('app_config').insert({
         setting_name: 'TV Timeout Motion Threshold', setting_value: '10'
+      }),
+      knex('app_config').insert({
+        setting_name: 'Motion Sensitivity', setting_value: '3000'
       })
     ]);
   }).then(function(){
