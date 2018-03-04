@@ -46,8 +46,7 @@ module.exports = {
 
   Get_Log_Days: function(){
     return Logs()
-    .distinct('time_stamp')
-    .select(knex.raw('to_char("time_stamp", \'YYYY-MM-DD\') as "day"'))
+    .distinct(knex.raw('to_char("time_stamp", \'YYYY-MM-DD\') as "day"'))
     .orderBy('day', 'DESC')
   },
 
