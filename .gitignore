@@ -18,13 +18,13 @@ build/Release
 node_modules/
 
 # Optional npm cache directory
-.npm
+Web_Site/.npm
 
 # Optional REPL history
 .node_repl_history
 
 # Knex file with full PROD string
-knexfile.js
+Web_Site/knexfile.js
 
 # Dotenv file
-.env
+Web_Site/.env

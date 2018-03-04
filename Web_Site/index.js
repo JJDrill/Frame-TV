@@ -1,37 +1,11 @@
 const express = require('express')
 const app = express()
-const { Client } = require('pg')
 var bodyParser = require('body-parser')
 const tv = require('./data/tv_control')
+const db = require('./data/frame_tv_db')
 
 var path = require('path')
 var urlencodedParser = bodyParser.urlencoded({ extended: false})
-
-const client = new Client({
-  user: 'postgres',
-  host: '192.168.1.124',
-  database: 'Frame_TV_DB',
-  password: 'password',
-  port: 5432,
-})
-// const client = new Client({
-//   user: 'jdrill',
-//   host: 'localhost',
-//   database: 'Frame_TV_DB',
-//   password: 'password',
-//   port: 5432,
-// })
-// const client = new Client({
-//   user: 'jdrill',
-//   host: 'localhost',
-//   database: 'Frame_TV_DB_Test',
-//   password: 'password',
-//   port: 5432,
-// })
-
-client.connect()
-
-var str = "";
 
 app.set('view engine', 'ejs')
 app.use(express.static(path.join(__dirname, 'public')));
@@ -60,10 +34,9 @@ app.post('/tvcontrol', urlencodedParser, function (req, res) {
 })
 
 app.get('/settings', function (req, res) {
-  client.query('SELECT setting_name, setting_value FROM app_config;', (err, data) => {
-    if (err) throw err;
+  db.Get_App_Config_Data().then(function(data){
     res.render('settings', {
-      app_settings: data.rows
+      app_settings: data
     });
   })
 })
@@ -73,25 +46,15 @@ app.post('/settings', urlencodedParser, function(req, res){
   settingsUpdates = JSON.parse(req.body.settingsChanges);
 
   for (key_name in settingsUpdates) {
-
-    var query_string = 'UPDATE app_config \
-      SET setting_value = \'' + settingsUpdates[key_name] + '\' \
-      WHERE setting_name = \'' + key_name + '\';'
-
-    client.query(query_string, (err, data) => {
-      if (err) throw err;
-    })
+    db.Update_App_Config_Data(key_name, settingsUpdates[key_name])
+    .then(function(output){})
   }
 });
 
 app.get('/schedule', function (req, res) {
-  var query_string = 'SELECT day, time_range, tv_state \
-    FROM schedule ORDER BY time_range;'
-
-  client.query(query_string, (err, data) => {
-    if (err) throw err;
+  db.Get_Schedule().then(function(data){
     res.render('schedule', {
-      schedule: data.rows
+      schedule: data
     });
   })
 })
@@ -102,59 +65,37 @@ app.post('/schedule', urlencodedParser, function(req, res){
   newSchedules = JSON.parse(req.body.scheduleChanges);
 
   for (key_name in newSchedules){
-    var query_string = "UPDATE public.schedule \
-    SET tv_state='" + newSchedules[key_name].tv_state + "' \
-    WHERE day='" + newSchedules[key_name].day + "' and \
-    time_range='" + newSchedules[key_name].time_range + "';"
-
-    client.query(query_string, (err, data) => {
-      if (err) throw err;
-      res.end();
-    })
+    db.Update_Schedule(
+      newSchedules[key_name].day,
+      newSchedules[key_name].time_range,
+      newSchedules[key_name].tv_state
+    ).then(function(){})
   }
 })
 
 app.route('/logs').get(function(req, res)
 {
-  var query_string = 'SELECT DISTINCT to_char(time_stamp, \'YYYY-MM-DD\') as day \
-    FROM logs ORDER BY day DESC;'
-
-  client.query(query_string, (err, data) => {
-    if (err) throw err;
+  db.Get_Log_Days().then(function(data){
     res.render('logs_list', {
-      logList: data.rows
-    });
-	})
+      logList: data
+    })
+  })
 })
 
 app.get('/logs/:date', function (req, res) {
-  var query_string = 'SELECT *, to_char(time_stamp, \'HH24:MI:SS\') as time \
-  FROM logs WHERE time_stamp::date = \'' + req.params.date + '\' ORDER BY time DESC;'
-
-  client.query(query_string, (err, logData) => {
-    if (err) throw err;
+  db.Get_Logs_For_Day(req.params.date).then(function(logData){
     res.render('logs', {
-      logData: logData.rows
-    });
+      logData: logData
+    })
   })
 })
 
 app.delete('/logs/:date', function (req, res) {
-  var query_string = 'DELETE FROM logs WHERE time_stamp::date = \'' + req.params.date + '\''
-
-  client.query(query_string, (err, logData) => {
-    if (err) throw err;
+  db.Delete_Logs(req.params.date).then(function(output){
     res.end();
   })
 })
 
-app.route('/logs_all').get(function(req, res)
-{
-	client.query('SELECT * FROM logs;', (err, txt) => {
-		res.send(txt)
-	})
-})
-
 app.listen(3000, function () {
-  console.log('Listening on port 3000!')
+  console.log('Listening on port 3000')
 })
