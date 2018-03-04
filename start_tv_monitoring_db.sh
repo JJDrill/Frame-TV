@@ -82,12 +82,12 @@ UpdateDBSettingsCount=$UpdateDBSettings
 while true; do
 	# Check if we should update all settings from DB
 	if [ $UpdateDBSettingsCount -ge $UpdateDBSettings ]; then
-		TV_MODE=`psql -tc "$TV_Mode_Query" Frame_TV_DB postgres`
-		Tv_Off_Check=`psql -tc "$Tv_Off_Check_Query" Frame_TV_DB postgres`
-		Tv_Off_Threshold=`psql -tc "$Tv_Off_Threshold_Query" Frame_TV_DB postgres`
-		MOTION_SENSITIVITY=`psql -tc "$MOTION_SENSITIVITY_QUERY" Frame_TV_DB postgres`
+		TV_MODE=`psql -tc "$TV_Mode_Query" frame_tv_db postgres`
+		Tv_Off_Check=`psql -tc "$Tv_Off_Check_Query" frame_tv_db postgres`
+		Tv_Off_Threshold=`psql -tc "$Tv_Off_Threshold_Query" frame_tv_db postgres`
+		MOTION_SENSITIVITY=`psql -tc "$MOTION_SENSITIVITY_QUERY" frame_tv_db postgres`
 		UpdateDBSettingsCount=0
-		
+
 		echo --------------------------------------
 		echo TV_MODE: $TV_MODE
 		echo Tv_Off_Check: $Tv_Off_Check
@@ -115,7 +115,7 @@ while true; do
 			CURRENT_DAY=$(date +%A)
 			CURRENT_TIME=$(date +%H):$M:00
 			QUERY="SELECT tv_state FROM schedule WHERE day='$CURRENT_DAY' and time_range='$CURRENT_TIME'"
-			TV_SCHEDULE=`psql -tc "$QUERY" Frame_TV_DB postgres`
+			TV_SCHEDULE=`psql -tc "$QUERY" frame_tv_db postgres`
 			echo TV_Schedule: $TV_SCHEDULE
 			TV_SCHEDULE_COUNT=0
 		fi
@@ -134,7 +134,7 @@ while true; do
 			CURRENT_DAY=$(date +%A)
 			CURRENT_TIME=$(date +%H):$M:00
 			QUERY="SELECT tv_state FROM schedule WHERE day='$CURRENT_DAY' and time_range='$CURRENT_TIME'"
-			TV_SCHEDULE=`psql -tc "$QUERY" Frame_TV_DB postgres`
+			TV_SCHEDULE=`psql -tc "$QUERY" frame_tv_db postgres`
 			echo TV_Schedule: $TV_SCHEDULE
 			TV_SCHEDULE_COUNT=0
 		fi
@@ -147,7 +147,7 @@ while true; do
 			motionCount=0
 			motionTotal=0
 			QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'TV ON', 'TV turned on per schedule.')"
-			psql -c "$QUERY" Frame_TV_DB postgres
+			psql -c "$QUERY" frame_tv_db postgres
 			echo Turning TV On - $( getTime )
 			setTvPower "on"
 		fi
@@ -165,7 +165,7 @@ while true; do
 		if [ "$tvStatus" = "on" ]; then
 			echo Turning TV Off - $( getTime )
 			QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'TV OFF', 'TV turned off per schedule.')"
-			psql -c "$QUERY" Frame_TV_DB postgres
+			psql -c "$QUERY" frame_tv_db postgres
 			setTvPower "standby"
 			echo
 		fi
@@ -185,34 +185,34 @@ while true; do
 		sentivitityReached=false
 		start=$( date +"%s%N" )
 		printf "In motion detected loop."
-		
+
 		while [ "$MotionStatus" = "Motion" ] ; do
 			sleep 0.5
 			totalTime=$((($(date +"%s%N") - $start)/1000000))
-			
+
 			if [ $totalTime -gt $MOTION_SENSITIVITY ]; then
 				sentivitityReached=true
 				break
 			fi
-			
+
 			MotionStatus=$( getMotionStatus )
 			printf "."
 		done
-		
+
 		printf "\n"
 		totalTime=$((($(date +"%s%N") - $start)/1000000))
 		echo Motion detected - $(date '+%Y-%m-%d %H:%M:%S'): Total Seconds: $totalTime
-		
+
 		# If we did not reach out sensitivity metric we won't count this as motion detected
 		if [ $sentivitityReached = "false" ]; then
 			QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'MOTION', 'Motion of $totalTime milliseconds detected but did not reach sensitivity of $MOTION_SENSITIVITY milliseconds.')"
-			psql -c "$QUERY" Frame_TV_DB postgres
+			psql -c "$QUERY" frame_tv_db postgres
 			continue
 		fi
-		
+
 		motionCount=$(($motionCount + 1))
 		QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'MOTION', 'Motion detected after $motionTotal seconds. (Count: $motionCount - Duration: $totalTime)')"
-		psql -c "$QUERY" Frame_TV_DB postgres
+		psql -c "$QUERY" frame_tv_db postgres
 
 		tvStatus=$( getTvPowerStatus )
 
@@ -220,7 +220,7 @@ while true; do
 			motionCount=0
 			motionTotal=0
 			QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'TV ON', 'TV turned on becuase of motion dectection.')"
-			psql -c "$QUERY" Frame_TV_DB postgres
+			psql -c "$QUERY" frame_tv_db postgres
 
 			echo Turning TV On - $( getTime ): $motionTotal / $motionCount
 			setTvPower "on"
@@ -238,7 +238,7 @@ while true; do
 			if [ $motionCount -le $Tv_Off_Threshold ]; then
 				echo Turning TV Off - $( getTime ): $motionTotal / $motionCount
 				QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'TV OFF', 'TV turned off becuase of lack of motion.')"
-				psql -c "$QUERY" Frame_TV_DB postgres
+				psql -c "$QUERY" frame_tv_db postgres
 
 				setTvPower "standby"
 				echo
@@ -250,10 +250,10 @@ while true; do
 
 		# Get updated motion settings
 		QUERY="SELECT setting_value FROM app_config WHERE setting_name = 'TV Timeout'"
-		Tv_Off_Check=`psql -tc "$QUERY" Frame_TV_DB postgres`
+		Tv_Off_Check=`psql -tc "$QUERY" frame_tv_db postgres`
 
 		QUERY="SELECT setting_value FROM app_config WHERE setting_name = 'TV Timeout Motion Threshold'"
-		Tv_Off_Threshold=`psql -tc "$QUERY" Frame_TV_DB postgres`
+		Tv_Off_Threshold=`psql -tc "$QUERY" frame_tv_db postgres`
 		echo "Motion metrics updated. Tv_Off_Check - $Tv_Off_Check / Tv_Off_Threshold - $Tv_Off_Threshold"
 	fi
 

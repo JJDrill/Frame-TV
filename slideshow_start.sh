@@ -18,7 +18,7 @@
 export PGPASSWORD="password"
 
 QUERY="SELECT setting_value FROM app_config WHERE setting_name = 'Screen Saver Duration'"
-slideshow_speed=`psql -tc "$QUERY" Frame_TV_DB postgres`
+slideshow_speed=`psql -tc "$QUERY" frame_tv_db postgres`
 echo "Slideshow Speed: " $slideshow_speed
 
 DIR=/home/pi/Google_Drive/Picture_Frame/Pictures
@@ -43,7 +43,7 @@ feh --auto-rotate -x -F -r -Y -z -A slideshow -D $slideshow_speed
 while sleep $((1)); do
    idle=$(xprintidle)
    if [ $idle -ge $IDLE_TIME ]; then
-   	slideshow_speed=`psql -tc "$QUERY" Frame_TV_DB postgres`
+   	slideshow_speed=`psql -tc "$QUERY" frame_tv_db postgres`
 	echo "Slideshow Speed: " $slideshow_speed
 	feh --auto-rotate -x -F -r -Y -z -A slideshow -D $slideshow_speed
    fi
