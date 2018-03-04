@@ -43,7 +43,9 @@ feh --auto-rotate -x -F -r -Y -z -A slideshow -D $slideshow_speed
 while sleep $((1)); do
    idle=$(xprintidle)
    if [ $idle -ge $IDLE_TIME ]; then
-      feh --auto-rotate -x -F -r -Y -z -A slideshow -D $slideshow_speed
+   	slideshow_speed=`psql -tc "$QUERY" Frame_TV_DB postgres`
+	echo "Slideshow Speed: " $slideshow_speed
+	feh --auto-rotate -x -F -r -Y -z -A slideshow -D $slideshow_speed
    fi
 done
 
