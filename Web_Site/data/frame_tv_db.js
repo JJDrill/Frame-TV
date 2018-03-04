@@ -47,7 +47,7 @@ module.exports = {
   Get_Log_Days: function(){
     return Logs()
     .distinct(knex.raw('to_char("time_stamp", \'YYYY-MM-DD\') as "day"'))
-    .orderBy('day', 'DESC')
+    .orderBy('day', 'desc')
   },
 
   Get_Logs_For_Day: function(date){
@@ -56,7 +56,7 @@ module.exports = {
     return Logs()
     .select('*', knex.raw('to_char("time_stamp", \'HH24:MI:SS\') as "time"'))
     .where(knex.raw(rawString))
-    orderBy('time', 'DESC')
+    .orderBy('time', 'desc')
   },
 
   Delete_Logs: function(date){
