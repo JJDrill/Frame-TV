@@ -66,6 +66,12 @@ getTime()
 	date +"%R"
 }
 
+logDbStatus()
+{
+	QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', '$1', '$2')"
+	psql -c "$QUERY" frame_tv_db postgres
+}
+
 # Set up GPIO and set to input
 echo "$GPIO" > /sys/class/gpio/export
 echo "in" > /sys/class/gpio/gpio$GPIO/direction
@@ -75,7 +81,7 @@ motionTotal=0
 FIRST_RUN=true
 # set this to 60 at first so we get our schedule for the script start
 TV_SCHEDULE_COUNT=100
-TV_SCHEDULE=''
+TV_SCHEDULE="nil"
 UpdateDBSettings=30
 UpdateDBSettingsCount=$UpdateDBSettings
 
@@ -99,9 +105,19 @@ while true; do
 	fi
 
 	if [ $TV_MODE = "Static_On" ]; then
+		if [ "$TV_SCHEDULE" != "ON" ]; then
+			logDbStatus "Mode" "Changed to TV always on"
+			TV_SCHEDULE_OFF_FIRST_RUN="true"
+		fi
 		TV_SCHEDULE="ON"
+		
 	elif [ $TV_MODE = "Static_Off" ]; then
+		if [ "$TV_SCHEDULE" != "OFF" ]; then
+			logDbStatus "Mode" "Changed to TV always off"
+			TV_SCHEDULE_OFF_FIRST_RUN="true"
+		fi
 		TV_SCHEDULE="OFF"
+		
 	elif [ $TV_MODE = "Scheduled" ]; then
 		CURRENT_MINUTE=$(date +%m)
 
@@ -146,8 +162,7 @@ while true; do
 		if [ "$tvStatus" = "standby" ]; then
 			motionCount=0
 			motionTotal=0
-			QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'TV ON', 'TV turned on per schedule.')"
-			psql -c "$QUERY" frame_tv_db postgres
+			logDbStatus "TV ON" "TV turned on per schedule."
 			echo Turning TV On - $( getTime )
 			setTvPower "on"
 		fi
@@ -160,12 +175,13 @@ while true; do
 	fi
 
 	if [ $TV_SCHEDULE = 'OFF' ]; then
-		tvStatus=$( getTvPowerStatus )
+		#tvStatus=$( getTvPowerStatus )
 
-		if [ "$tvStatus" = "on" ]; then
+		if [ $TV_SCHEDULE_OFF_FIRST_RUN = "true" ]; then
+		#if [ "$tvStatus" = "on" ]; then
+			TV_SCHEDULE_OFF_FIRST_RUN="false"
 			echo Turning TV Off - $( getTime )
-			QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'TV OFF', 'TV turned off per schedule.')"
-			psql -c "$QUERY" frame_tv_db postgres
+			logDbStatus "TV OFF" "TV turned off per schedule."
 			setTvPower "standby"
 			echo
 		fi
@@ -205,23 +221,18 @@ while true; do
 
 		# If we did not reach out sensitivity metric we won't count this as motion detected
 		if [ $sentivitityReached = "false" ]; then
-			QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'MOTION', 'Motion of $totalTime milliseconds detected but did not reach sensitivity of $MOTION_SENSITIVITY milliseconds.')"
-			psql -c "$QUERY" frame_tv_db postgres
+			logDbStatus "MOTION" "Motion of $totalTime milliseconds detected but did not reach sensitivity of $MOTION_SENSITIVITY milliseconds."
 			continue
 		fi
 
 		motionCount=$(($motionCount + 1))
-		QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'MOTION', 'Motion detected after $motionTotal seconds. (Count: $motionCount - Duration: $totalTime)')"
-		psql -c "$QUERY" frame_tv_db postgres
-
+		logDbStatus "MOTION" "Motion detected after $motionTotal seconds. (Count: $motionCount - Duration: $totalTime)"
 		tvStatus=$( getTvPowerStatus )
 
 		if [ "$tvStatus" = "standby" ]; then
 			motionCount=0
 			motionTotal=0
-			QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'TV ON', 'TV turned on becuase of motion dectection.')"
-			psql -c "$QUERY" frame_tv_db postgres
-
+			logDbStatus "TV ON" "TV turned on becuase of motion dectection."
 			echo Turning TV On - $( getTime ): $motionTotal / $motionCount
 			setTvPower "on"
 			echo
@@ -237,9 +248,7 @@ while true; do
 
 			if [ $motionCount -le $Tv_Off_Threshold ]; then
 				echo Turning TV Off - $( getTime ): $motionTotal / $motionCount
-				QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', 'TV OFF', 'TV turned off becuase of lack of motion.')"
-				psql -c "$QUERY" frame_tv_db postgres
-
+				logDbStatus "TV OFF" "TV turned off becuase of lack of motion."
 				setTvPower "standby"
 				echo
 				sleep $CEC_Wait
