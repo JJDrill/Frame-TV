@@ -106,14 +106,14 @@ while true; do
 
 	if [ $TV_MODE = "Static_On" ]; then
 		if [ "$TV_SCHEDULE" != "ON" ]; then
-			logDbStatus "Mode" "Changed to TV always on"
+			logDbStatus "MODE" "Changed to TV always on"
 			TV_SCHEDULE_OFF_FIRST_RUN="true"
 		fi
 		TV_SCHEDULE="ON"
 		
 	elif [ $TV_MODE = "Static_Off" ]; then
 		if [ "$TV_SCHEDULE" != "OFF" ]; then
-			logDbStatus "Mode" "Changed to TV always off"
+			logDbStatus "MODE" "Changed to TV always off"
 			TV_SCHEDULE_OFF_FIRST_RUN="true"
 		fi
 		TV_SCHEDULE="OFF"
