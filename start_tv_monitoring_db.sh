@@ -72,6 +72,25 @@ logDbStatus()
 	psql -c "$QUERY" frame_tv_db postgres
 }
 
+getCurrentSchedule()
+{
+	currentMinute=$(date +%M)
+
+	if   [ $currentMinute -lt "15" ]; then M=00
+	elif [ $currentMinute -lt "30" ]; then M=15
+	elif [ $currentMinute -lt "45" ]; then M=30
+	else M=45
+	fi
+
+	currentDay=$(date +%A)
+	currentTime=$(date +%H):$M:00
+	
+	QUERY="SELECT tv_state FROM schedule WHERE day='$currentDay' and time_range='$currentTime'"
+	schedule=`psql -tc "$QUERY" frame_tv_db postgres`
+	
+	echo $schedule
+}
+
 # Set up GPIO and set to input
 echo "$GPIO" > /sys/class/gpio/export
 echo "in" > /sys/class/gpio/gpio$GPIO/direction
@@ -119,50 +138,14 @@ while true; do
 		TV_SCHEDULE="OFF"
 		
 	elif [ $TV_MODE = "Scheduled" ]; then
-		CURRENT_MINUTE=$(date +%M)
 
 		if [ $TV_SCHEDULE_COUNT -ge $TV_SCHEDULE_CHECK ]; then
-			if   [ $CURRENT_MINUTE -lt "15" ]; then M=00
-			elif [ $CURRENT_MINUTE -lt "30" ]; then M=15
-			elif [ $CURRENT_MINUTE -lt "45" ]; then M=30
-			else M=45
-			fi
-
-			CURRENT_DAY=$(date +%A)
-			CURRENT_TIME=$(date +%H):$M:00
 			oldSchedule=$TV_SCHEDULE
-			QUERY="SELECT tv_state FROM schedule WHERE day='$CURRENT_DAY' and time_range='$CURRENT_TIME'"
-			TV_SCHEDULE=`psql -tc "$QUERY" frame_tv_db postgres`
+			TV_SCHEDULE=$( getCurrentSchedule )
 			echo TV_Schedule: $TV_SCHEDULE
 			
 			if [ "$TV_SCHEDULE" != "$oldSchedule" ]; then
 				logDbStatus "SCHEDULE" "Changed to $TV_SCHEDULE"
-				tvScheduleChanged="true"
-			fi
-			
-			TV_SCHEDULE_COUNT=0
-		fi
-
-		# Get the TV schedule for this period
-		CURRENT_MINUTE=$(date +%-M)
-
-		if [ $TV_SCHEDULE_COUNT -ge $TV_SCHEDULE_CHECK ]; then
-
-			if   [ $CURRENT_MINUTE -lt "15" ]; then M=00
-			elif [ $CURRENT_MINUTE -lt "30" ]; then M=15
-			elif [ $CURRENT_MINUTE -lt "45" ]; then M=30
-			else M=45
-			fi
-
-			CURRENT_DAY=$(date +%A)
-			CURRENT_TIME=$(date +%H):$M:00
-			oldSchedule=$TV_SCHEDULE
-			QUERY="SELECT tv_state FROM schedule WHERE day='$CURRENT_DAY' and time_range='$CURRENT_TIME'"
-			TV_SCHEDULE=`psql -tc "$QUERY" frame_tv_db postgres`
-			echo TV_Schedule: $TV_SCHEDULE
-
-			if [ "$TV_SCHEDULE" != "$oldSchedule" ]; then
-				logDbStatus "MODE" "Changed to $TV_SCHEDULE"
 				tvScheduleChanged="true"
 			fi
 			
