@@ -9,6 +9,8 @@ TvStatusCheck=5
 TV_SCHEDULE_CHECK=50
 ON_OFF_SLEEP=10
 
+DB_NAME="frame_tv_db"
+DB_USER="postgres"
 TV_Mode_Query="SELECT setting_value FROM app_config WHERE setting_name='TV Mode'"
 Tv_Off_Check_Query="SELECT setting_value FROM app_config WHERE setting_name = 'TV Timeout'"
 Tv_Off_Threshold_Query="SELECT setting_value FROM app_config WHERE setting_name = 'TV Timeout Motion Threshold'"
@@ -61,15 +63,10 @@ getMotionStatus()
 	fi
 }
 
-getTime()
-{
-	date +"%R"
-}
-
 logDbStatus()
 {
 	QUERY="INSERT INTO logs (time_stamp, activity, description) VALUES ('$( date '+%Y-%m-%d %H:%M:%S' )', '$1', '$2')"
-	psql -c "$QUERY" frame_tv_db postgres
+	psql -c "$QUERY" $DB_NAME $DB_USER
 }
 
 getCurrentSchedule()
@@ -86,7 +83,7 @@ getCurrentSchedule()
 	currentTime=$(date +%H):$M:00
 	
 	QUERY="SELECT tv_state FROM schedule WHERE day='$currentDay' and time_range='$currentTime'"
-	schedule=`psql -tc "$QUERY" frame_tv_db postgres`
+	schedule=`psql -tc "$QUERY" $DB_NAME $DB_USER`
 	
 	echo $schedule
 }
@@ -107,10 +104,10 @@ UpdateDBSettingsCount=$UpdateDBSettings
 while true; do
 	# Check if we should update all settings from DB
 	if [ $UpdateDBSettingsCount -ge $UpdateDBSettings ]; then
-		TV_MODE=`psql -tc "$TV_Mode_Query" frame_tv_db postgres`
-		Tv_Off_Check=`psql -tc "$Tv_Off_Check_Query" frame_tv_db postgres`
-		Tv_Off_Threshold=`psql -tc "$Tv_Off_Threshold_Query" frame_tv_db postgres`
-		MOTION_SENSITIVITY=`psql -tc "$MOTION_SENSITIVITY_QUERY" frame_tv_db postgres`
+		TV_MODE=`psql -tc "$TV_Mode_Query" $DB_NAME $DB_USER`
+		Tv_Off_Check=`psql -tc "$Tv_Off_Check_Query" $DB_NAME $DB_USER`
+		Tv_Off_Threshold=`psql -tc "$Tv_Off_Threshold_Query" $DB_NAME $DB_USER`
+		MOTION_SENSITIVITY=`psql -tc "$MOTION_SENSITIVITY_QUERY" $DB_NAME $DB_USER`
 		UpdateDBSettingsCount=0
 
 		echo --------------------------------------
@@ -160,7 +157,7 @@ while true; do
 			motionCount=0
 			motionTotal=0
 			logDbStatus "TV ON" "TV turned on per schedule."
-			echo Turning TV On - $( getTime )
+			echo Turning TV On - $(date +"%R")
 			setTvPower "on"
 		fi
 
@@ -174,7 +171,7 @@ while true; do
 	if [ $TV_SCHEDULE = "OFF" ]; then
 		if [ "$tvScheduleChanged" = "true" ]; then
 			tvScheduleChanged="false"
-			echo Turning TV Off - $( getTime )
+			echo Turning TV Off - $(date +"%R")
 			logDbStatus "TV OFF" "TV turned off per schedule."
 			setTvPower "standby"
 			echo
@@ -227,7 +224,7 @@ while true; do
 			motionCount=0
 			motionTotal=0
 			logDbStatus "TV ON" "TV turned on becuase of motion dectection."
-			echo Turning TV On - $( getTime ): $motionTotal / $motionCount
+			echo Turning TV On - $(date +"%R"): $motionTotal / $motionCount
 			setTvPower "on"
 			echo
 			sleep $CEC_Wait
@@ -241,7 +238,7 @@ while true; do
 		if [ "$tvStatus" = "on" ]; then
 
 			if [ $motionCount -le $Tv_Off_Threshold ]; then
-				echo Turning TV Off - $( getTime ): $motionTotal / $motionCount
+				echo Turning TV Off - $(date +"%R"): $motionTotal / $motionCount
 				logDbStatus "TV OFF" "TV turned off becuase of lack of motion."
 				setTvPower "standby"
 				echo
@@ -253,10 +250,10 @@ while true; do
 
 		# Get updated motion settings
 		QUERY="SELECT setting_value FROM app_config WHERE setting_name = 'TV Timeout'"
-		Tv_Off_Check=`psql -tc "$QUERY" frame_tv_db postgres`
+		Tv_Off_Check=`psql -tc "$QUERY" $DB_NAME $DB_USER`
 
 		QUERY="SELECT setting_value FROM app_config WHERE setting_name = 'TV Timeout Motion Threshold'"
-		Tv_Off_Threshold=`psql -tc "$QUERY" frame_tv_db postgres`
+		Tv_Off_Threshold=`psql -tc "$QUERY" $DB_NAME $DB_USER`
 		echo "Motion metrics updated. Tv_Off_Check - $Tv_Off_Check / Tv_Off_Threshold - $Tv_Off_Threshold"
 	fi
 
