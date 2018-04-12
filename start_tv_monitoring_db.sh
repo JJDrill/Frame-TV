@@ -81,7 +81,7 @@ motionTotal=0
 FIRST_RUN=true
 # set this to 60 at first so we get our schedule for the script start
 TV_SCHEDULE_COUNT=100
-TV_SCHEDULE="nil"
+TV_SCHEDULE=""
 UpdateDBSettings=30
 UpdateDBSettingsCount=$UpdateDBSettings
 
@@ -107,19 +107,19 @@ while true; do
 	if [ $TV_MODE = "Static_On" ]; then
 		if [ "$TV_SCHEDULE" != "ON" ]; then
 			logDbStatus "MODE" "Changed to TV always on"
-			TV_SCHEDULE_OFF_FIRST_RUN="true"
+			tvScheduleChanged="true"
 		fi
 		TV_SCHEDULE="ON"
 		
 	elif [ $TV_MODE = "Static_Off" ]; then
 		if [ "$TV_SCHEDULE" != "OFF" ]; then
 			logDbStatus "MODE" "Changed to TV always off"
-			TV_SCHEDULE_OFF_FIRST_RUN="true"
+			tvScheduleChanged="true"
 		fi
 		TV_SCHEDULE="OFF"
 		
 	elif [ $TV_MODE = "Scheduled" ]; then
-		CURRENT_MINUTE=$(date +%m)
+		CURRENT_MINUTE=$(date +%M)
 
 		if [ $TV_SCHEDULE_COUNT -ge $TV_SCHEDULE_CHECK ]; then
 			if   [ $CURRENT_MINUTE -lt "15" ]; then M=00
@@ -130,9 +130,16 @@ while true; do
 
 			CURRENT_DAY=$(date +%A)
 			CURRENT_TIME=$(date +%H):$M:00
+			oldSchedule=$TV_SCHEDULE
 			QUERY="SELECT tv_state FROM schedule WHERE day='$CURRENT_DAY' and time_range='$CURRENT_TIME'"
 			TV_SCHEDULE=`psql -tc "$QUERY" frame_tv_db postgres`
 			echo TV_Schedule: $TV_SCHEDULE
+			
+			if [ "$TV_SCHEDULE" != "$oldSchedule" ]; then
+				logDbStatus "SCHEDULE" "Changed to $TV_SCHEDULE"
+				tvScheduleChanged="true"
+			fi
+			
 			TV_SCHEDULE_COUNT=0
 		fi
 
@@ -149,9 +156,16 @@ while true; do
 
 			CURRENT_DAY=$(date +%A)
 			CURRENT_TIME=$(date +%H):$M:00
+			oldSchedule=$TV_SCHEDULE
 			QUERY="SELECT tv_state FROM schedule WHERE day='$CURRENT_DAY' and time_range='$CURRENT_TIME'"
 			TV_SCHEDULE=`psql -tc "$QUERY" frame_tv_db postgres`
 			echo TV_Schedule: $TV_SCHEDULE
+
+			if [ "$TV_SCHEDULE" != "$oldSchedule" ]; then
+				logDbStatus "MODE" "Changed to $TV_SCHEDULE"
+				tvScheduleChanged="true"
+			fi
+			
 			TV_SCHEDULE_COUNT=0
 		fi
 	fi
@@ -174,12 +188,9 @@ while true; do
 		continue
 	fi
 
-	if [ $TV_SCHEDULE = 'OFF' ]; then
-		#tvStatus=$( getTvPowerStatus )
-
-		if [ $TV_SCHEDULE_OFF_FIRST_RUN = "true" ]; then
-		#if [ "$tvStatus" = "on" ]; then
-			TV_SCHEDULE_OFF_FIRST_RUN="false"
+	if [ $TV_SCHEDULE = "OFF" ]; then
+		if [ "$tvScheduleChanged" = "true" ]; then
+			tvScheduleChanged="false"
 			echo Turning TV Off - $( getTime )
 			logDbStatus "TV OFF" "TV turned off per schedule."
 			setTvPower "standby"
