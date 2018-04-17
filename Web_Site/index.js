@@ -14,6 +14,10 @@ app.get('/', function (req, res) {
   res.render('index');
 })
 
+app.get('/pictures', function (req, res) {
+  res.render('pictures');
+})
+
 app.get('/tvcontrol', function (req, res) {
   res.render('tvcontrol');
 })
