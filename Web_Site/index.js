@@ -15,7 +15,45 @@ app.get('/', function (req, res) {
 })
 
 app.get('/pictures', function (req, res) {
+  db.Get_Pictures().then(function(result){
+    res.render('pictures');
+  })
+})
+
+app.post('/pictures', urlencodedParser, function (req, res) {
+  if (!req.body) return res.sendStatus(400)
+
+  db.Does_Picture_Exist(req.body.name).then(function(picExists){
+    if (picExists.length === 0) {
+      db.Add_Picture(req.body.name).then(function(result){})
+    }
+  })
   res.render('pictures');
+})
+
+app.get('/pictures/:id', function (req, res) {
+  db.Get_Picture_Info(req.params.id).then(function(data){
+    console.log(data);
+    res.end();
+  })
+})
+
+app.put('/pictures/:id', urlencodedParser, function (req, res) {
+  if (!req.body) return res.sendStatus(400)
+
+  db.Does_Picture_Exist(req.body.name).then(function(picExists){
+    if (picExists.length === 0) {
+      db.Update_Picture(req.params.id, req.body.name, req.body.enabled).then(function(){})
+    }
+  })
+  res.render('pictures');
+})
+
+app.delete('/pictures/:id', function (req, res) {
+  db.Delete_Picture(req.params.id).then(function(result){
+    console.log(result);
+    res.end();
+  })
 })
 
 app.get('/tvcontrol', function (req, res) {

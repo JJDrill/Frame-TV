@@ -12,6 +12,10 @@ function Schedule(){
   return knex('schedule');
 }
 
+function Pictures(){
+  return knex('pictures');
+}
+
 module.exports = {
 
   Get_App_Config_Data: function(){
@@ -64,6 +68,48 @@ module.exports = {
 
     return Logs()
     .where(knex.raw(rawString))
+    .del()
+  },
+
+  Add_Picture: function(name){
+    return Pictures()
+    .insert({
+      name: name,
+      enabled: true
+    })
+  },
+
+  Get_Pictures: function(){
+    return Pictures()
+    .select('id', 'name', 'enabled')
+    .orderBy('name')
+  },
+
+  Get_Picture_Info: function(id){
+    return Pictures()
+    .where('id', id)
+    .select('id', 'name', 'enabled')
+    .orderBy('name')
+  },
+
+  Does_Picture_Exist: function(name){
+    return Pictures()
+    .where('name', name)
+    .select()
+  },
+
+  Update_Picture: function(id, name, enabled){
+    return Pictures()
+    .where('id', id)
+    .update({
+      name: name,
+      enabled: enabled
+    })
+  },
+
+  Delete_Picture: function(id){
+    return Pictures()
+    .where('id', id)
     .del()
   }
 }
