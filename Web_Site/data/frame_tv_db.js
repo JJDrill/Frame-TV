@@ -98,11 +98,10 @@ module.exports = {
     .select()
   },
 
-  Update_Picture: function(id, name, enabled){
+  Update_Picture: function(id, enabled){
     return Pictures()
     .where('id', id)
     .update({
-      name: name,
       enabled: enabled
     })
   },

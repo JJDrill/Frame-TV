@@ -1,8 +1,11 @@
 const express = require('express')
 const app = express()
 var bodyParser = require('body-parser')
+var formidable = require('formidable');
+var fs = require('fs');
 const tv = require('./data/tv_control')
 const db = require('./data/frame_tv_db')
+const picsDirectory = './pictures/'
 
 var path = require('path')
 var urlencodedParser = bodyParser.urlencoded({ extended: false})
@@ -15,25 +18,37 @@ app.get('/', function (req, res) {
 })
 
 app.get('/pictures', function (req, res) {
-  db.Get_Pictures().then(function(result){
-    res.render('pictures');
+  db.Get_Pictures().then(function(data){
+    res.render('pictures', {
+      picture_data: data
+    });
   })
 })
 
-app.post('/pictures', urlencodedParser, function (req, res) {
+app.post('/addPicture', urlencodedParser, function (req, res) {
   if (!req.body) return res.sendStatus(400)
+  var form = new formidable.IncomingForm();
 
-  db.Does_Picture_Exist(req.body.name).then(function(picExists){
-    if (picExists.length === 0) {
-      db.Add_Picture(req.body.name).then(function(result){})
-    }
+  form.parse(req, function (err, fields, files) {
+    var oldpath = files.filetoupload.path;
+    var newpath = picsDirectory + files.filetoupload.name;
+
+    fs.rename(oldpath, newpath, function (err) {
+      if (err) throw err;
+    })
+
+    db.Add_Picture(files.filetoupload.name).then(function(response){
+    }).then(function(){
+      db.Get_Pictures().then(function(data){
+        res.redirect('/pictures');
+      })
+    })
   })
-  res.render('pictures');
+
 })
 
 app.get('/pictures/:id', function (req, res) {
   db.Get_Picture_Info(req.params.id).then(function(data){
-    console.log(data);
     res.end();
   })
 })
@@ -41,19 +56,28 @@ app.get('/pictures/:id', function (req, res) {
 app.put('/pictures/:id', urlencodedParser, function (req, res) {
   if (!req.body) return res.sendStatus(400)
 
-  db.Does_Picture_Exist(req.body.name).then(function(picExists){
-    if (picExists.length === 0) {
-      db.Update_Picture(req.params.id, req.body.name, req.body.enabled).then(function(){})
-    }
+  db.Update_Picture(req.params.id, req.body.enabled).then(function(){
+    res.end();
   })
-  res.render('pictures');
 })
 
 app.delete('/pictures/:id', function (req, res) {
-  db.Delete_Picture(req.params.id).then(function(result){
-    console.log(result);
+
+  db.Get_Picture_Info(req.params.id).then(function(data){
+    return data
+  }).then(function(data){
+    fileInfo = data[0]
+
+    fs.unlinkSync(picsDirectory + fileInfo.name, function (err) {
+      if (err) throw err;
+    })
+
+    db.Delete_Picture(fileInfo.id).then(function(result){})
+  }).then(function(){
     res.end();
   })
+
+
 })
 
 app.get('/tvcontrol', function (req, res) {
