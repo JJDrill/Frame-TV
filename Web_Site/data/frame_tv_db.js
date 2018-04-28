@@ -1,4 +1,5 @@
 var knex = require('./knex')
+var fs = require('fs')
 
 function App_Config(){
   return knex('app_config');
@@ -21,6 +22,12 @@ module.exports = {
   Get_App_Config_Data: function(){
     return App_Config()
     .select('setting_name', 'setting_value')
+  },
+
+  Get_App_Config_Setting: function(settingName){
+    return App_Config()
+    .where('setting_name', settingName)
+    .select('setting_value')
   },
 
   Update_App_Config_Data: function(setting_name, new_value){
@@ -110,5 +117,24 @@ module.exports = {
     return Pictures()
     .where('id', id)
     .del()
+  },
+
+  Generate_Slideshow_Picture_List: function(){
+
+    knex('pictures')
+    .where('enabled', 'true')
+    .select('name')
+    .orderBy('name').then(function(data){
+
+      var fileData = "";
+
+      data.forEach(function(element){
+        fileData += "../pictures/" + element.name + "\n"
+      })
+
+      fs.writeFile('../server_scripts/slideshow_list.txt', fileData, function (err) {
+        if (err) throw err;
+      });
+    });
   }
 }
