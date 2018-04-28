@@ -12,7 +12,7 @@ module.exports = {
     cp.spawnSync(cmd);
   },
 
-  Get_Status: function(){
+  Get_State: function(){
     cmd = "echo pow 0 | cec-client -s -d 1 | grep 'power status:'"
     cp.spawnSync(cmd);
   }

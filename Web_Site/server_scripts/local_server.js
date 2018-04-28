@@ -1,6 +1,7 @@
 const db = require('../data/frame_tv_db');
 const settings_cache = require('./settings_cache.js');
 const motion_monitor = require('./motion_monitor.js');
+const tv = require('./tv_control.js');
 const NodeCache = require( "node-cache" );
 const myCache = new NodeCache();
 
@@ -17,13 +18,20 @@ const TV_ACTION_ON = "ON"
 const TV_ACTION_OFF = "OFF"
 const TV_ACTION_MOTION = "MOTION"
 
-settings_cache.Start(myCache);
+// settings_cache.Start(myCache);
+// settings_cache.Start();
 motion_monitor.Start(myCache);
 
 setInterval(() => {
 
-  console.log("Settings: ", myCache.get(CACHE_SETTINGS))
-  console.log("Motion: ", myCache.get(CACHE_MOTION))
+  // cache = myCache.get()
+  // console.log("Settings: ", myCache.get())
+  // settings = myCache.get(CACHE_SETTINGS)
+  // settings = myCache.get(CACHE_MOTION)
+  // console.log("Settings: ", myCache.get(CACHE_SETTINGS))
+  // console.log("Motion: ", myCache.get(CACHE_MOTION))
+  // console.log("Test: ", settings_cache.Get_All_Settings())
+  console.log("Test: ", settings_cache.Get_Setting("TV Timeout Motion Threshold"))
 
   // count = parseInt(myCache.get( "Count" ))
   // if ( isNaN(count) ) {
@@ -37,27 +45,37 @@ setInterval(() => {
   tv_action = ""
 
   // set our tv_action based on the tv_mode
-  // if (settings[DB_TV_MODE] === DB_STATIC_ON) {
+  // if (cache[DB_TV_MODE] === DB_STATIC_ON) {
   //   tv_action = TV_ACTION_ON
   // } else if (settings[DB_TV_MODE] === DB_STATIC_OFF) {
   //   tv_action = TV_ACTION_OFF
-  // } else if (settings[DB_TV_MODE] === DB_SCHEDULED) {
+  // } else if (settings[DB_TV_MODE] === DB_STATIC_MOTION) {
   //   tv_action = TV_ACTION_MOTION
+  // } else if (settings[DB_TV_MODE] === DB_SCHEDULED) {
+  //   // TODO: lookup the action from our schedule
+  //   tv_action = "??????"
   // } else {
-  //   console.log("ERROR: Mode not supported: ", settings[DB_TV_MODE]);
-  //   log_error("ERROR: Mode not supported: ", settings[DB_TV_MODE])
+  //   message = "ERROR: Mode not supported: " + settings[DB_TV_MODE]
+  //   console.log(message)
+  //   log_error(message)
   // }
 
   // get the current status of the tv
-  // current_tv_state = get_tv_state()
+  current_tv_state = tv.Get_State();
 
   // perform the tv_action
   // if (TV_ACTION_ON === tv_action) {
-  //
+  //   if (current_tv_state != TV_ACTION_ON) {
+  //     tv.Turn_On();
+  //   }
   // } else if (TV_ACTION_OFF === tv_action) {
-  //
-  // } else if (TV_ACTION_MOTION === tv_action) {
-  //
+  //   if (current_tv_state != TV_ACTION_OFF) {
+  //     tv.Turn_On();
+  //   }
+  // } else {
+  //   message = "ERROR: Action not supported: " + tv_action
+  //   console.log(message)
+  //   log_error(message)
   // }
 
 }, 1000);
