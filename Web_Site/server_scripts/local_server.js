@@ -18,20 +18,11 @@ const TV_ACTION_ON = "ON"
 const TV_ACTION_OFF = "OFF"
 const TV_ACTION_MOTION = "MOTION"
 
-// settings_cache.Start(myCache);
-// settings_cache.Start();
-motion_monitor.Start(myCache);
-
 setInterval(() => {
 
-  // cache = myCache.get()
-  // console.log("Settings: ", myCache.get())
-  // settings = myCache.get(CACHE_SETTINGS)
-  // settings = myCache.get(CACHE_MOTION)
-  // console.log("Settings: ", myCache.get(CACHE_SETTINGS))
   // console.log("Motion: ", myCache.get(CACHE_MOTION))
-  // console.log("Test: ", settings_cache.Get_All_Settings())
-  console.log("Test: ", settings_cache.Get_Setting("TV Timeout Motion Threshold"))
+  // console.log("Settings: ", settings_cache.Get_All_Settings())
+  // console.log("Setting: ", settings_cache.Get_Setting("TV Timeout Motion Threshold"))
 
   // count = parseInt(myCache.get( "Count" ))
   // if ( isNaN(count) ) {

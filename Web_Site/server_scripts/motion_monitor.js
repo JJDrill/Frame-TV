@@ -1,11 +1,7 @@
 // var Gpio = require('onoff').Gpio;
 var Stopwatch = require("node-stopwatch").Stopwatch;
-const NodeCache = require( "node-cache" );
-
 var stopwatch = Stopwatch.create();
-const CACHE_NAME = "Motion";
-var waitTime = 10000
-var myCache;
+var waitTime = 1000
 
 // Set the GPIO pin number the motion sensor is connected to
 // var motion_gpio = new Gpio(15, 'in');
@@ -13,13 +9,10 @@ var myCache;
 // echo "$GPIO" > /sys/class/gpio/export
 // echo "in" > /sys/class/gpio/gpio$GPIO/direction
 
-function Get_Motion_Status(){
+setInterval(() => {
   motion_result = Math.floor(Math.random() * 2);
-  obj = {}
 
-  if (motion_result === 0) {
-    obj["Status"] = "No Motion"
-  } else {
+  if (motion_result === 1) {
     stopwatch.start();
 
     while (motion_result <= 998) {
@@ -28,28 +21,11 @@ function Get_Motion_Status(){
     }
 
     stopwatch.stop();
-    obj["Status"] = "Motion"
-    obj["TimeStamp"] = Date()
-    obj["diff"] = stopwatch.elapsedMilliseconds
+    result = {}
+    result["Status"] = "Motion"
+    result["TimeStamp"] = Date()
+    result["diff"] = stopwatch.elapsedMilliseconds
+    console.log("Registering motion detection: ", result);
+    // TODO: make the call to register the motion detection
   }
-
-  return obj
-}
-
-module.exports = {
-
-  Start: function(theCache){
-    myCache = theCache
-    obj = []
-    myCache.set( CACHE_NAME, obj, function( err, success ){})
-
-    setInterval(() => {
-      obj = Get_Motion_Status()
-
-      motion_array = myCache.get(CACHE_NAME)
-      motion_array.push(obj)
-      myCache.set( CACHE_NAME, motion_array, function( err, success ){})
-    }, 1000);
-  }
-
-}
+}, waitTime);
