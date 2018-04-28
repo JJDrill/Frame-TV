@@ -3,7 +3,7 @@ const app = express()
 var bodyParser = require('body-parser')
 var formidable = require('formidable');
 var fs = require('fs');
-const tv = require('./data/tv_control')
+const ss_ctrl = require('./data/slideshow_control')
 const db = require('./data/frame_tv_db')
 const picsDirectory = './pictures/'
 
@@ -87,11 +87,11 @@ app.get('/tvcontrol', function (req, res) {
 app.post('/tvcontrol', urlencodedParser, function (req, res) {
 
   if (req.body.action === "previous") {
-    tv.Display_Picture_Previous();
+    ss_ctrl.Display_Picture_Previous();
   } else if (req.body.action === "next") {
-    tv.Display_Picture_Next();
+    ss_ctrl.Display_Picture_Next();
   } else if (req.body.action === "reset") {
-    tv.Reset_Slideshow();
+    ss_ctrl.Reset_Slideshow();
   } else {
     console.log("Error: Action not found: " + req.body.action);
   }
