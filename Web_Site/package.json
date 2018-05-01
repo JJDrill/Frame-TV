@@ -15,6 +15,7 @@
     "forever": "^0.15.3",
     "formidable": "^1.2.1",
     "knex": "^0.14.2",
+    "moment": "^2.22.1",
     "node-cache": "^4.2.0",
     "node-cec": "^0.1.2",
     "node-stopwatch": "0.0.1",

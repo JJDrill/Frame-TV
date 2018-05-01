@@ -55,6 +55,15 @@ module.exports = {
     })
   },
 
+  Add_Log: function(newTimeStamp, newActivity, newDescription){
+    return Logs()
+    .insert({
+      time_stamp: newTimeStamp,
+      activity: newActivity,
+      description: newDescription
+    })
+  },
+
   Get_Log_Days: function(){
     return Logs()
     .distinct(knex.raw('to_char("time_stamp", \'YYYY-MM-DD\') as "day"'))
