@@ -1,8 +1,9 @@
 const db = require('../data/frame_tv_db');
-const motion_monitor = require('./motion_monitor.js');
+
+const cache_mngr_settings = require('./settings_cache');
+const motion_monitor = require('./motion_monitor');
+const motion_manager = require('./motion_manager');
 const tv = require('./tv_control.js');
-const NodeCache = require( "node-cache" );
-const myCache = new NodeCache();
 
 // cache names
 const CACHE_SETTINGS = "Settings"
