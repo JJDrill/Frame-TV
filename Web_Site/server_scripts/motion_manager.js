@@ -1,13 +1,13 @@
 const db = require('../data/frame_tv_db');
 var moment = require('moment');
 var cache = require('./local_cache');
+var tv = require('./tv_control');
 
 var wait_time = 1000;
 var seconds_counter = 0;
 var motion_count = 0;
 
 // database modes
-// const SETTING_TV_MODE = "TV Mode"
 const DB_STATIC_ON = "Static_On"
 const DB_STATIC_OFF = "Static_Off"
 const DB_STATIC_MOTION = "Static_Motion"
@@ -21,7 +21,9 @@ setInterval(() => {
     console.log('Found motion alert: ', item);
     log_to_db(item.TimeStamp, item.diff)
     var tv_action = get_tv_action()
-    // get the current state of the tv
+    // get the tv's current state
+    current_tv_state = tv.Get_State();
+    console.log(current_tv_state);
   })
 }, wait_time);
 
