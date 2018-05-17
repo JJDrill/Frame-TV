@@ -19,4 +19,8 @@ function Update_Cache(){
       cache.set_setting(item.setting_name, item.setting_value)
     })
   })
+
+  db.Get_Current_Scheduled_Mode().then(function(mode){
+    cache.set_setting("Scheduled Mode", mode[0]['tv_state'])
+  })
 }

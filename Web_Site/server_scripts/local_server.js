@@ -5,9 +5,6 @@ const motion_monitor = require('./motion_monitor');
 const motion_manager = require('./motion_manager');
 const tv = require('./tv_control.js');
 
-// cache names
-const CACHE_SETTINGS = "Settings"
-const CACHE_MOTION = "Motion"
 // database modes
 const DB_STATIC_ON = "Static_On"
 const DB_STATIC_OFF = "Static_Off"
@@ -33,23 +30,6 @@ setInterval(() => {
   // myCache.set( "Count", count, function( err, success ){})
   // count = myCache.get( "Count" )
 
-  tv_action = ""
-
-  // set our tv_action based on the tv_mode
-  // if (cache[DB_TV_MODE] === DB_STATIC_ON) {
-  //   tv_action = TV_ACTION_ON
-  // } else if (settings[DB_TV_MODE] === DB_STATIC_OFF) {
-  //   tv_action = TV_ACTION_OFF
-  // } else if (settings[DB_TV_MODE] === DB_STATIC_MOTION) {
-  //   tv_action = TV_ACTION_MOTION
-  // } else if (settings[DB_TV_MODE] === DB_SCHEDULED) {
-  //   // TODO: lookup the action from our schedule
-  //   tv_action = "??????"
-  // } else {
-  //   message = "ERROR: Mode not supported: " + settings[DB_TV_MODE]
-  //   console.log(message)
-  //   log_error(message)
-  // }
 
   // get the current status of the tv
   current_tv_state = tv.Get_State();

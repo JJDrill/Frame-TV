@@ -1,5 +1,6 @@
 var knex = require('./knex')
 var fs = require('fs')
+var moment = require('moment');
 
 function App_Config(){
   return knex('app_config');
@@ -53,6 +54,33 @@ module.exports = {
     .update({
       tv_state: new_tv_state
     })
+  },
+
+  Get_Current_Scheduled_Mode: function(){
+    var datetime = moment()
+    var current_day = datetime.format("dddd")
+    var current_hour = datetime.format("hh")
+    var current_minute = datetime.format("m")
+    var minute_range = ""
+
+    if (current_minute < "15") {
+      minute_range = "00"
+    } else if (current_minute < "30") {
+      minute_range = "15"
+    } else if (current_minute < "45") {
+      minute_range = "30"
+    } else {
+      minute_range = "45"
+    }
+
+    full_time = current_hour + ":" + minute_range + ":00"
+
+    return Schedule()
+    .where({
+      day: current_day,
+      time_range:  full_time
+    })
+    .select('tv_state')
   },
 
   Add_Log: function(newTimeStamp, newActivity, newDescription){
