@@ -5,7 +5,7 @@ module.exports = {
   Turn_On: function(mock){
     mock = mock || false
     if (mock){
-      console.log("Warning! Using responser for function 'Turn_On'!");
+      // console.log("Warning! Using responser for function 'Turn_On'!");
       return true;
     }
 
@@ -16,7 +16,7 @@ module.exports = {
   Turn_Off: function(mock){
     mock = mock || false
     if (mock){
-      console.log("Warning! Using responser for function 'Turn_Off'!");
+      // console.log("Warning! Using responser for function 'Turn_Off'!");
       return true;
     }
     cmd = "echo standby 0 | cec-client -s -d 1"
@@ -37,7 +37,7 @@ module.exports = {
       }
 
     } else {
-      console.log("Warning! Using responser for function 'Get_State'!");
+      // console.log("Warning! Using responser for function 'Get_State'!");
       rand = Math.floor(Math.random() * 2);
 
       if (rand === 0) {

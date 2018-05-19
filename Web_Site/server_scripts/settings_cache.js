@@ -13,14 +13,24 @@ setInterval(() => {
 }, WAIT_TIME);
 
 function Update_Cache(){
-  console.log("Updating settings");
+
   db.Get_App_Config_Data().then(function(settings){
     settings.forEach(function(item){
-      cache.set_setting(item.setting_name, item.setting_value)
+      if (item.setting_name != "TV Mode") {
+        cache.set_setting(item.setting_name, item.setting_value)
+      }
     })
-  })
-
-  db.Get_Current_Scheduled_Mode().then(function(mode){
-    cache.set_setting("Scheduled Mode", mode[0]['tv_state'])
+  }).then(function(){
+    return db.Get_Target_Mode().then(function(data){
+      cache.set_setting("Target TV Mode", data)
+    })
+  }).then(function(){
+    console.log("\nUpdating settings...");
+    console.log("************************************");
+    settings_cache = cache.get_settings()
+    for (var key in settings_cache) {
+      console.log(key + ": " + settings_cache[key]);
+    }
+    console.log("************************************\n");
   })
 }

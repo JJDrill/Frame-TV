@@ -2,6 +2,13 @@ var knex = require('./knex')
 var fs = require('fs')
 var moment = require('moment');
 
+const TV_MODES = {
+  DB_STATIC_ON: "Static_On",
+  DB_STATIC_OFF: "Static_Off",
+  DB_STATIC_MOTION: "Static_Motion",
+  DB_SCHEDULED: "Scheduled"
+}
+
 function App_Config(){
   return knex('app_config');
 }
@@ -19,6 +26,7 @@ function Pictures(){
 }
 
 module.exports = {
+  TV_Modes: TV_MODES,
 
   Get_App_Config_Data: function(){
     return App_Config()
@@ -56,31 +64,46 @@ module.exports = {
     })
   },
 
-  Get_Current_Scheduled_Mode: function(){
-    var datetime = moment()
-    var current_day = datetime.format("dddd")
-    var current_hour = datetime.format("hh")
-    var current_minute = datetime.format("m")
-    var minute_range = ""
+  Get_Target_Mode: function(){
+    return App_Config()
+    .where('setting_name', "TV Mode")
+    .select('setting_value').then(function(data){
+      tv_mode = data[0]["setting_value"]
+      if (tv_mode === TV_MODES.DB_STATIC_ON) {
+        return "ON"
+      } else if (tv_mode === TV_MODES.DB_STATIC_OFF) {
+        return "OFF"
+      } else if (tv_mode === TV_MODES.DB_STATIC_MOTION) {
+        return "MOTION"
+      } else if (tv_mode === TV_MODES.DB_SCHEDULED) {
+        var datetime = moment()
+        var current_day = datetime.format("dddd")
+        var current_hour = datetime.format("hh")
+        var current_minute = datetime.format("m")
+        var minute_range = ""
 
-    if (current_minute < "15") {
-      minute_range = "00"
-    } else if (current_minute < "30") {
-      minute_range = "15"
-    } else if (current_minute < "45") {
-      minute_range = "30"
-    } else {
-      minute_range = "45"
-    }
+        if (current_minute < "15") {
+          minute_range = "00"
+        } else if (current_minute < "30") {
+          minute_range = "15"
+        } else if (current_minute < "45") {
+          minute_range = "30"
+        } else {
+          minute_range = "45"
+        }
 
-    full_time = current_hour + ":" + minute_range + ":00"
+        full_time = current_hour + ":" + minute_range + ":00"
 
-    return Schedule()
-    .where({
-      day: current_day,
-      time_range:  full_time
+        return Schedule()
+        .where({
+          day: current_day,
+          time_range:  full_time
+        })
+        .select('tv_state').then(function(data){
+          return data[0]["tv_state"]
+        })
+      }
     })
-    .select('tv_state')
   },
 
   Add_Log: function(newTimeStamp, newActivity, newDescription){

@@ -32,7 +32,7 @@ setInterval(() => {
 
 
   // get the current status of the tv
-  current_tv_state = tv.Get_State();
+  // current_tv_state = tv.Get_State();
 
   // perform the tv_action
   // if (TV_ACTION_ON === tv_action) {
