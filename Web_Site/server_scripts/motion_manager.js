@@ -23,20 +23,20 @@ setInterval(() => {
     if (DEBUG) {
       console.log('Found motion alert: ' + item.TimeStamp + " / " + item.MotionDuration);
     }
-    log_motion_detection(item.TimeStamp, item.MotionDuration)
+    Log_Motion_Detection(item.TimeStamp, item.MotionDuration)
   })
 
   previous_target_tv_mode = target_tv_mode
   target_tv_mode = cache.get_setting("Target TV Mode")
 
   if (target_tv_mode === "OFF") {
-    StopMotionMonitoring();
+    Stop_Motion_Monitoring();
     Verify_TV_Is_Off();
   } else if (target_tv_mode === "ON") {
-    StopMotionMonitoring();
+    Stop_Motion_Monitoring();
     Verify_TV_Is_On();
   } else if (target_tv_mode === "MOTION") {
-    StartMotionMonitoring();
+    Start_Motion_Monitoring();
     Verify_TV_Is_Monitoring_Motion();
   }
 }, wait_time);
@@ -87,7 +87,7 @@ function Verify_TV_Is_Monitoring_Motion(){
   }
 }
 
-function log_motion_detection(time_stamp, time_duration){
+function Log_Motion_Detection(time_stamp, time_duration){
   motion_sensitivity = cache.get_setting("Motion Sensitivity")
   var message = ""
 
@@ -104,13 +104,13 @@ function log_motion_detection(time_stamp, time_duration){
   db.Add_Log(time_stamp, "MOTION", message).then()
 }
 
-function StartMotionMonitoring(){
+function Start_Motion_Monitoring(){
   if (motion_monitor.Get_Status() != true) {
     motion_monitor.Start();
   }
 }
 
-function StopMotionMonitoring(){
+function Stop_Motion_Monitoring(){
   if (motion_monitor.Get_Status() != false) {
     motion_monitor.Stop();
   }
