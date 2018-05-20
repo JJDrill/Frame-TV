@@ -14,11 +14,12 @@ var Stopwatch = require("node-stopwatch").Stopwatch;
 var moment = require('moment');
 const db = require('../data/frame_tv_db');
 var cache = require('./local_cache');
-var stopwatch = Stopwatch.create();
-var waitTime = 1000
+var waitTime = 250
 var motion_count = 0
-var detectingMotion = false
 var motionInterval;
+var motionTotal = 0;
+var motionResult = 0;
+var previousMotionResult = 0;
 
 // Set the GPIO pin number the motion sensor is connected to
 // var motion_gpio = new Gpio(15, 'in');
@@ -29,20 +30,29 @@ var motionInterval;
 motionInterval = getMotionInterval()
 
 function getMotionInterval(){
+
   return setInterval(() => {
-    if (cache.get_setting("Target TV Mode") === "MOTION") {
-      if (gpio.Get_Status() === 1) {
+    previousMotionResult = motionResult
+    motionResult = gpio.Get_Status();
+    // console.log("motionResult: ", motionResult);
 
-        stopwatch.start();
-        while (gpio.Get_Status() === 1) {
-          motion_result = gpio.Get_Response_Time();
-        }
-        stopwatch.stop();
+    if (motionResult === 1) {
 
+      if (previousMotionResult != motionResult) {
+        // starting a new motion dection loop
+        motionTotal = waitTime
+      } else {
+        // still seeing motion, so just increase the time
+        motionTotal += waitTime
+      }
+
+    } else {
+      if (previousMotionResult != motionResult) {
+        // ending a motion detection loop
         result = {}
         result["Status"] = "Motion"
         result["TimeStamp"] = moment().format('YYYY-MMM-DD h:mm:ss a')
-        result["diff"] = gpio.Get_Response_Time()
+        result["MotionDuration"] = motionTotal
         cache.add_monitor_alert(result)
       }
     }

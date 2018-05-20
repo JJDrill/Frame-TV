@@ -14,10 +14,14 @@ var previous_target_tv_mode = ""
 setInterval(() => {
   seconds_counter += wait_time / 1000
   alerts = cache.purge_montior_alerts()
-
+  console.log("alerts                     : ", alerts.length);
+  // if (alerts.length > 1) {
+  //
+  //   console.log("alert length: ", alerts);
+  // }
   alerts.forEach(function(item) {
-    console.log('Found motion alert: ', item);
-    log_motion_detection(item.TimeStamp, item.diff)
+    console.log('Found motion alert: ' + item.TimeStamp + " / " + item.MotionDuration);
+    log_motion_detection(item.TimeStamp, item.MotionDuration)
     motion_count += 1
   })
 
@@ -57,8 +61,8 @@ setInterval(() => {
     if (seconds_counter >= tv_timeout) {
       // if out motion detections are less than the threshold just keep the tv on
       if (motion_count < tv_timeout_motion_threshold) {
-        // current_tv_mode = tv.Get_State(DEBUG);
-        // console.log("current_tv_state: ", current_tv_state);
+        current_tv_mode = tv.Get_State(DEBUG);
+        // console.log("current_tv_state: ", current_tv_mode);
       }
 
       seconds_counter = 0

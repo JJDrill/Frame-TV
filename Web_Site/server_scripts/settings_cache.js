@@ -25,12 +25,12 @@ function Update_Cache(){
       cache.set_setting("Target TV Mode", data)
     })
   }).then(function(){
-    console.log("\nUpdating settings...");
-    console.log("************************************");
-    settings_cache = cache.get_settings()
-    for (var key in settings_cache) {
-      console.log(key + ": " + settings_cache[key]);
-    }
-    console.log("************************************\n");
+    // console.log("\nUpdating settings...");
+    // console.log("************************************");
+    // settings_cache = cache.get_settings()
+    // for (var key in settings_cache) {
+    //   console.log(key + ": " + settings_cache[key]);
+    // }
+    // console.log("************************************\n");
   })
 }
