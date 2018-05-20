@@ -28,21 +28,17 @@ setInterval(() => {
   // console.log("target_tv_mode: ", target_tv_mode);
   // console.log("current_tv_mode: ", current_tv_mode);
 
-  if (target_tv_mode != previous_target_tv_mode) {
-
-  }
-
   if (target_tv_mode === "OFF") {
     StopMotionMonitoring();
 
-    if (true) {
+    if (previous_target_tv_mode != target_tv_mode) {
       current_tv_mode = tv.Get_State(DEBUG);
-    }
 
-    if (current_tv_mode != target_tv_mode) {
-      console.log("Turning the TV Off.");
-      db.Add_Log(null, "TV OFF", "Turning the TV Off.").then()
-      tv.Turn_Off();
+      if (current_tv_mode != target_tv_mode) {
+        console.log("Turning the TV Off.");
+        db.Add_Log(null, "TV OFF", "Turning the TV Off.").then()
+        tv.Turn_Off();
+      }
     }
 
   } else if (target_tv_mode === "ON") {
