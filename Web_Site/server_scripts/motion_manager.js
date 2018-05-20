@@ -14,11 +14,7 @@ var previous_target_tv_mode = ""
 setInterval(() => {
   seconds_counter += wait_time / 1000
   alerts = cache.purge_montior_alerts()
-  console.log("alerts                     : ", alerts.length);
-  // if (alerts.length > 1) {
-  //
-  //   console.log("alert length: ", alerts);
-  // }
+
   alerts.forEach(function(item) {
     console.log('Found motion alert: ' + item.TimeStamp + " / " + item.MotionDuration);
     log_motion_detection(item.TimeStamp, item.MotionDuration)
