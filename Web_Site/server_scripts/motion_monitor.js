@@ -10,14 +10,15 @@ if (use_test_gpio = true) {
   gpio = require('onoff').Gpio;
 }
 
-var moment = require('moment');
 var Stopwatch = require("node-stopwatch").Stopwatch;
-
+var moment = require('moment');
 const db = require('../data/frame_tv_db');
 var cache = require('./local_cache');
 var stopwatch = Stopwatch.create();
 var waitTime = 1000
 var motion_count = 0
+var detectingMotion = false
+var motionInterval;
 
 // Set the GPIO pin number the motion sensor is connected to
 // var motion_gpio = new Gpio(15, 'in');
@@ -25,20 +26,44 @@ var motion_count = 0
 // echo "$GPIO" > /sys/class/gpio/export
 // echo "in" > /sys/class/gpio/gpio$GPIO/direction
 
-setInterval(() => {
+motionInterval = getMotionInterval()
 
-  if (gpio.Get_Status() === 1) {
+function getMotionInterval(){
+  return setInterval(() => {
+    if (cache.get_setting("Target TV Mode") === "MOTION") {
+      if (gpio.Get_Status() === 1) {
 
-    stopwatch.start();
-    while (gpio.Get_Status() === 1) {
-      motion_result = gpio.Get_Response_Time();
+        stopwatch.start();
+        while (gpio.Get_Status() === 1) {
+          motion_result = gpio.Get_Response_Time();
+        }
+        stopwatch.stop();
+
+        result = {}
+        result["Status"] = "Motion"
+        result["TimeStamp"] = moment().format('YYYY-MMM-DD h:mm:ss a')
+        result["diff"] = gpio.Get_Response_Time()
+        cache.add_monitor_alert(result)
+      }
     }
-    stopwatch.stop();
+  }, waitTime);
+}
 
-    result = {}
-    result["Status"] = "Motion"
-    result["TimeStamp"] = moment().format('YYYY-MMM-DD h:mm:ss a')
-    result["diff"] = gpio.Get_Response_Time()
-    cache.add_monitor_alert(result)
+module.exports = {
+
+  Start: function(){
+    motionInterval = getMotionInterval()
+  },
+
+  Stop: function(){
+    clearInterval(motionInterval);
+  },
+
+  Get_Status: function(){
+    if (motionInterval["_idleTimeout"] === -1) {
+      return false;
+    } else {
+      return true;
+    }
   }
-}, waitTime);
+}

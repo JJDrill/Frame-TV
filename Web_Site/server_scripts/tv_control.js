@@ -31,9 +31,9 @@ module.exports = {
       result = cp.spawnSync(cmd);
 
       if (result === "power status: on") {
-        return "on"
+        return "ON"
       } else if (result === "power status: standby") {
-        return "standby"
+        return "OFF"
       }
 
     } else {
@@ -41,9 +41,9 @@ module.exports = {
       rand = Math.floor(Math.random() * 2);
 
       if (rand === 0) {
-        return "on"
+        return "ON"
       } else {
-        return "standby"
+        return "OFF"
       }
     }
   }

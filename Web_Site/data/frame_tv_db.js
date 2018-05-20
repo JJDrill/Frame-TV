@@ -106,7 +106,12 @@ module.exports = {
     })
   },
 
+  // set newTimeStamp to null and it will use the current time stamp
   Add_Log: function(newTimeStamp, newActivity, newDescription){
+    if (newTimeStamp === null) {
+      newTimeStamp = moment().format('YYYY-MMM-DD h:mm:ss a')
+    }
+
     return Logs()
     .insert({
       time_stamp: newTimeStamp,
