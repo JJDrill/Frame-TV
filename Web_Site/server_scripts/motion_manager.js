@@ -13,16 +13,15 @@ var previous_target_tv_mode = ""
 
 setInterval(() => {
   seconds_counter += wait_time / 1000
+  var tv_timeout = cache.get_setting("TV Timeout")
+  var tv_timeout_motion_threshold = cache.get_setting("TV Timeout Motion Threshold")
+  var tv_motion_sensitivity = cache.get_setting("Motion Sensitivity")
   alerts = cache.purge_montior_alerts()
-
   alerts.forEach(function(item) {
     console.log('Found motion alert: ' + item.TimeStamp + " / " + item.MotionDuration);
     log_motion_detection(item.TimeStamp, item.MotionDuration)
-    motion_count += 1
   })
 
-  var tv_timeout = cache.get_setting("TV Timeout")
-  var tv_timeout_motion_threshold = cache.get_setting("TV Timeout Motion Threshold")
   previous_target_tv_mode = target_tv_mode
   target_tv_mode = cache.get_setting("Target TV Mode")
   // console.log("target_tv_mode: ", target_tv_mode);
@@ -55,17 +54,18 @@ setInterval(() => {
     StartMotionMonitoring();
 
     if (seconds_counter >= tv_timeout) {
-      // if out motion detections are less than the threshold just keep the tv on
+
       if (motion_count < tv_timeout_motion_threshold) {
         current_tv_mode = tv.Get_State(DEBUG);
-        // console.log("current_tv_state: ", current_tv_mode);
+        db.Add_Log(null, "TV OFF", "Turning the TV off due to lack of motion: " + motion_count).then()
+        tv.Turn_Off();
+      } else {
+        // console.log("Keeping the TV on: " + motion_count + "\n");
       }
-
       seconds_counter = 0
       motion_count = 0
     }
   }
-
 }, wait_time);
 
 

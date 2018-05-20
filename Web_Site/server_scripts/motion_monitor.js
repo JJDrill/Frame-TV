@@ -34,9 +34,23 @@ function getMotionInterval(){
     motionResult = gpio.Get_Status();
 
     if (motionResult === 1) {
-      // starting a new motion dection loop
       if (previousMotionResult != motionResult) {
+        // starting a new motion detection loop
         startTime = moment()
+      } else {
+        // see if we should end the detection early
+        var tv_motion_sensitivity = cache.get_setting("Motion Sensitivity")
+        currentDuration = moment() - startTime
+        if (tv_motion_sensitivity < currentDuration) {
+          endTime = moment()
+          result = {}
+          result["Status"] = "Motion"
+          result["TimeStamp"] = moment().format('YYYY-MMM-DD h:mm:ss a')
+          result["MotionDuration"] = endTime - startTime
+          cache.add_monitor_alert(result)
+          // fake the end of a motion detection
+          motionResult = 0
+        }
       }
 
     } else {
