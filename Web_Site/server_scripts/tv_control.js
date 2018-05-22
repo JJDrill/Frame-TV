@@ -1,4 +1,4 @@
-const cp = require('child_process');
+const { execSync } = require('child_process');
 const TURN_TV_ON = "echo on 0 | cec-client -s -d 1"
 const TURN_TV_OFF = "echo standby 0 | cec-client -s -d 1"
 const GET_TV_STATUS = "echo pow 0 | cec-client -s -d 1 | grep 'power status:'"
@@ -11,7 +11,7 @@ module.exports = {
       console.log("Warning! Using responser for function 'Turn_On'!");
       return true;
     }
-    cp.exec(TURN_TV_ON);
+    execSync(TURN_TV_ON);
   },
 
   Turn_Off: function(mock){
@@ -20,24 +20,15 @@ module.exports = {
       console.log("Warning! Using responser for function 'Turn_Off'!");
       return true;
     }
-    result = cp.exec(TURN_TV_OFF);
+    execSync(TURN_TV_OFF);
   },
 
   Get_State: function(mock){
     mock = mock || false
 
     if (!mock) {
-      cmd =
-      // result = cp.spawnSync(GET_TV_STATUS);
 
-      exec(GET_TV_STATUS, (err, stdout, stderr) => {
-        if (err) {
-          console.error(`exec error: ${err}`);
-          return;
-        }
-
-        console.log(`Output ${stdout}`);
-      });
+      var result = execSync(GET_TV_STATUS);
 
       if (result === "power status: on") {
         return "ON"
