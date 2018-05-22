@@ -20,7 +20,8 @@ module.exports = {
       return true;
     }
     cmd = "echo standby 0 | cec-client -s -d 1"
-    cp.spawnSync(cmd);
+    result = cp.spawnSync(cmd);
+    console.log(result)
   },
 
   Get_State: function(mock){
