@@ -22,10 +22,11 @@ module.exports = {
     // example
     // const child = spawn('find', ['.', '-type', 'f']);
 
-    // cmd = "echo standby 0 | cec-client -s -d 1"
+    cmd = "echo standby 0 | cec-client -s -d 1"
+    result = cp.exec(cmd);
     var args = ['echo', 'standby', '0', '|', 'cec-client', '-s', '-d', '1']
-    result = cp.spawnSync('echo', args);
-    console.log(result)
+    // result = cp.exec('echo', args);
+    // console.log(result['stdout'].toString('utf8'))
   },
 
   Get_State: function(mock){
