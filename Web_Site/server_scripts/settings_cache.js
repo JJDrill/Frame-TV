@@ -2,7 +2,7 @@
   This script will pull all the settings from the DB and populate
   them into the local_cache every WAIT_TIME seconds.
 */
-const DEBUG = false;
+const DEBUG = true;
 const db = require('../data/frame_tv_db');
 const WAIT_TIME = 10000;
 var cache = require('./local_cache');

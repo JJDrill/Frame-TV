@@ -3,7 +3,8 @@ var cache = require('./local_cache');
 var tv = require('./tv_control');
 const motion_monitor = require('./motion_monitor');
 
-const DEBUG = false;
+const DEBUG = true;
+const DEBUG_TV_STATE = false;
 var wait_time = 1000;
 var tv_timeout = 0;
 var tv_timeout_motion_threshold = 0;
@@ -28,6 +29,7 @@ setInterval(() => {
 
   previous_target_tv_mode = target_tv_mode
   target_tv_mode = cache.get_setting("Target TV Mode")
+  if ( DEBUG ) console.log("target_tv_mode: ", target_tv_mode)
 
   if (target_tv_mode === "OFF") {
     Stop_Motion_Monitoring();
@@ -44,7 +46,7 @@ setInterval(() => {
 
 function Verify_TV_Is_Off(){
   if (previous_target_tv_mode != target_tv_mode) {
-    current_tv_mode = tv.Get_State(DEBUG);
+    current_tv_mode = tv.Get_State(DEBUG_TV_STATE);
 
     if (current_tv_mode != target_tv_mode) {
       if (DEBUG) { console.log("Turning the TV Off."); }
@@ -55,7 +57,7 @@ function Verify_TV_Is_Off(){
 }
 
 function Verify_TV_Is_On(){
-  current_tv_mode = tv.Get_State(DEBUG);
+  current_tv_mode = tv.Get_State(DEBUG_TV_STATE);
 
   if (current_tv_mode != target_tv_mode) {
     if (DEBUG) { cconsole.log("Turning the TV On."); }
@@ -68,7 +70,7 @@ function Verify_TV_Is_Monitoring_Motion(){
   if (seconds_counter >= tv_timeout) {
 
     if (motion_count < tv_timeout_motion_threshold) {
-      current_tv_mode = tv.Get_State(DEBUG);
+      current_tv_mode = tv.Get_State(DEBUG_TV_STATE);
 
       if (current_tv_mode != target_tv_mode) {
         message = "Turning the TV off due to lack of motion. " +

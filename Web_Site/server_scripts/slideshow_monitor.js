@@ -1,4 +1,4 @@
-const cp = require('child_process');
+const { execSync } = require('child_process');
 const db = require('../data/frame_tv_db')
 
 setInterval(() => {
@@ -14,7 +14,7 @@ setInterval(() => {
   }).then(function(){
     // Generate the feh command and run it
     var fehCommand = 'feh --auto-rotate -x -F -r -Y -z -A slideshow -D' + slideshow_speed + " -f slideshow_list.txt"
-    var ls = cp.spawnSync(fehCommand);
+    execSync(fehCommand, ['../pictures']);
 
     // var fehCommand = 'ls'
     // var ls = cp.spawnSync(fehCommand, ['../pictures'], { encoding : 'utf8' });

@@ -69,16 +69,20 @@ module.exports = {
     .where('setting_name', "TV Mode")
     .select('setting_value').then(function(data){
       tv_mode = data[0]["setting_value"]
+
       if (tv_mode === TV_MODES.DB_STATIC_ON) {
         return "ON"
+
       } else if (tv_mode === TV_MODES.DB_STATIC_OFF) {
         return "OFF"
+
       } else if (tv_mode === TV_MODES.DB_STATIC_MOTION) {
         return "MOTION"
+
       } else if (tv_mode === TV_MODES.DB_SCHEDULED) {
         var datetime = moment()
         var current_day = datetime.format("dddd")
-        var current_hour = datetime.format("hh")
+        var current_hour = datetime.format("HH")
         var current_minute = datetime.format("m")
         var minute_range = ""
 
