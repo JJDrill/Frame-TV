@@ -3,11 +3,18 @@
   activity into the local_cache.
 */
 var gpio;
-use_test_gpio = true;
-if (use_test_gpio = true) {
+var motion_gpio;
+use_test_gpio = false;
+
+if (use_test_gpio) {
   gpio = require('./gpio_test');
 } else {
-  gpio = require('onoff').Gpio;
+  Gpio = require('onoff').Gpio;
+  // Set the GPIO pin number the motion sensor is connected to
+  var motion_gpio = new Gpio(15, 'in');
+  // Set up GPIO and set to input
+  // echo "$GPIO" > /sys/class/gpio/export
+  // echo "in" > /sys/class/gpio/gpio$GPIO/direction
 }
 
 var moment = require('moment');
@@ -20,18 +27,13 @@ var previousMotionResult = 0;
 var startTime;
 var endTime;
 
-// Set the GPIO pin number the motion sensor is connected to
-// var motion_gpio = new Gpio(15, 'in');
-// Set up GPIO and set to input
-// echo "$GPIO" > /sys/class/gpio/export
-// echo "in" > /sys/class/gpio/gpio$GPIO/direction
-
 motionInterval = getMotionInterval()
+
 
 function getMotionInterval(){
   return setInterval(() => {
     previousMotionResult = motionResult
-    motionResult = gpio.Get_Status();
+    motionResult = motion_gpio.readSync();
 
     if (motionResult === 1) {
       if (previousMotionResult != motionResult) {
