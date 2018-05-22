@@ -19,8 +19,12 @@ module.exports = {
       // console.log("Warning! Using responser for function 'Turn_Off'!");
       return true;
     }
-    cmd = "echo standby 0 | cec-client -s -d 1"
-    result = cp.spawnSync(cmd);
+    // example
+    // const child = spawn('find', ['.', '-type', 'f']);
+
+    // cmd = "echo standby 0 | cec-client -s -d 1"
+    var args = ['echo', 'standby', '0', '|', 'cec-client', '-s', '-d', '1']
+    result = cp.spawnSync('echo', args);
     console.log(result)
   },
 
