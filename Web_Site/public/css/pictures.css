@@ -1,0 +1,18 @@
+.tblCenter {
+  text-align: center;
+}
+
+.tblCenterButton {
+  display: flex;
+  justify-content: center;
+}
+
+.addPictureView {
+  display: flex;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 10px;
+  width: 600px;
+}

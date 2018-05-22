@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Pictures</title>
+    <% include partials/head %>
+    <link rel="stylesheet" href="../css/pictures.css">
+  </head>
+  <header>
+    <% include partials/header %>
+  </header>
+  <body>
+    <div class="viewArea">
+      <div class="addPictureView border">
+        <form action="addPicture" method="post" enctype="multipart/form-data">
+          <input type="file" name="filetoupload" value="Test" accept="image/*">
+          <input type="submit" value="Add File">
+        </form>
+      </div>
+      <table align="right" class="table table-sm picTable table-responsive w-auto">
+        <thead>
+          <tr>
+            <th>Picture</th>
+            <th class="tblCenter">Include in Slideshow</th>
+            <th class="tblCenter">Remove</th>
+          </tr>
+        </thead>
+        <% picture_data.forEach(function(data) { %>
+          <tr id=<%= data.id %>>
+            <td> <%= data.name %> </td>
+            <td class="tblCenter">
+              <button id="picButton<%= data.id %>" class="<%= data.enabled ? 'btn-success' : 'btn-secondary' %>" onclick="enableDisablePicture(this.id, <%= data.id %>)"><%= data.enabled ? 'Yes' : 'No' %></button></td>
+            <td class="tblCenterButton">
+              <button onclick="deletePic(<%= data.id %>)" class="close text-danger" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </td>
+          </tr>
+        <% }); %>
+      </table>
+    </div>
+    <% include partials/scripts %>
+    <script src="../js/pictures.js"></script>
+  </body>
+</html>

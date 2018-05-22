@@ -1,8 +1,11 @@
 const express = require('express')
 const app = express()
 var bodyParser = require('body-parser')
-const tv = require('./data/tv_control')
+var formidable = require('formidable');
+var fs = require('fs');
+const ss_ctrl = require('./data/slideshow_control')
 const db = require('./data/frame_tv_db')
+const picsDirectory = './pictures/'
 
 var path = require('path')
 var urlencodedParser = bodyParser.urlencoded({ extended: false})
@@ -14,6 +17,69 @@ app.get('/', function (req, res) {
   res.render('index');
 })
 
+app.get('/pictures', function (req, res) {
+  db.Get_Pictures().then(function(data){
+    res.render('pictures', {
+      picture_data: data
+    });
+  })
+})
+
+app.post('/addPicture', urlencodedParser, function (req, res) {
+  if (!req.body) return res.sendStatus(400)
+  var form = new formidable.IncomingForm();
+
+  form.parse(req, function (err, fields, files) {
+    var oldpath = files.filetoupload.path;
+    var newpath = picsDirectory + files.filetoupload.name;
+
+    fs.rename(oldpath, newpath, function (err) {
+      if (err) throw err;
+    })
+
+    db.Add_Picture(files.filetoupload.name).then(function(response){
+    }).then(function(){
+      db.Get_Pictures().then(function(data){
+        res.redirect('/pictures');
+      })
+    })
+  })
+
+})
+
+app.get('/pictures/:id', function (req, res) {
+  db.Get_Picture_Info(req.params.id).then(function(data){
+    res.end();
+  })
+})
+
+app.put('/pictures/:id', urlencodedParser, function (req, res) {
+  if (!req.body) return res.sendStatus(400)
+
+  db.Update_Picture(req.params.id, req.body.enabled).then(function(){
+    res.end();
+  })
+})
+
+app.delete('/pictures/:id', function (req, res) {
+
+  db.Get_Picture_Info(req.params.id).then(function(data){
+    return data
+  }).then(function(data){
+    fileInfo = data[0]
+
+    fs.unlinkSync(picsDirectory + fileInfo.name, function (err) {
+      if (err) throw err;
+    })
+
+    db.Delete_Picture(fileInfo.id).then(function(result){})
+  }).then(function(){
+    res.end();
+  })
+
+
+})
+
 app.get('/tvcontrol', function (req, res) {
   res.render('tvcontrol');
 })
@@ -21,11 +87,11 @@ app.get('/tvcontrol', function (req, res) {
 app.post('/tvcontrol', urlencodedParser, function (req, res) {
 
   if (req.body.action === "previous") {
-    tv.Display_Picture_Previous();
+    ss_ctrl.Display_Picture_Previous();
   } else if (req.body.action === "next") {
-    tv.Display_Picture_Next();
+    ss_ctrl.Display_Picture_Next();
   } else if (req.body.action === "reset") {
-    tv.Reset_Slideshow();
+    ss_ctrl.Reset_Slideshow();
   } else {
     console.log("Error: Action not found: " + req.body.action);
   }
