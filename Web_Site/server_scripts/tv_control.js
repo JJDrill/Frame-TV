@@ -1,40 +1,43 @@
 const cp = require('child_process');
+const TURN_TV_ON = "echo on 0 | cec-client -s -d 1"
+const TURN_TV_OFF = "echo standby 0 | cec-client -s -d 1"
+const GET_TV_STATUS = "echo pow 0 | cec-client -s -d 1 | grep 'power status:'"
 
 module.exports = {
 
   Turn_On: function(mock){
     mock = mock || false
     if (mock){
-      // console.log("Warning! Using responser for function 'Turn_On'!");
+      console.log("Warning! Using responser for function 'Turn_On'!");
       return true;
     }
-
-    cmd = "echo on 0 | cec-client -s -d 1"
-    cp.spawnSync(cmd);
+    cp.exec(TURN_TV_ON);
   },
 
   Turn_Off: function(mock){
     mock = mock || false
     if (mock){
-      // console.log("Warning! Using responser for function 'Turn_Off'!");
+      console.log("Warning! Using responser for function 'Turn_Off'!");
       return true;
     }
-    // example
-    // const child = spawn('find', ['.', '-type', 'f']);
-
-    cmd = "echo standby 0 | cec-client -s -d 1"
-    result = cp.exec(cmd);
-    var args = ['echo', 'standby', '0', '|', 'cec-client', '-s', '-d', '1']
-    // result = cp.exec('echo', args);
-    // console.log(result['stdout'].toString('utf8'))
+    result = cp.exec(TURN_TV_OFF);
   },
 
   Get_State: function(mock){
     mock = mock || false
 
     if (!mock) {
-      cmd = "echo pow 0 | cec-client -s -d 1 | grep 'power status:'"
-      result = cp.spawnSync(cmd);
+      cmd =
+      // result = cp.spawnSync(GET_TV_STATUS);
+
+      exec(GET_TV_STATUS, (err, stdout, stderr) => {
+        if (err) {
+          console.error(`exec error: ${err}`);
+          return;
+        }
+
+        console.log(`Output ${stdout}`);
+      });
 
       if (result === "power status: on") {
         return "ON"
@@ -43,7 +46,7 @@ module.exports = {
       }
 
     } else {
-      // console.log("Warning! Using responser for function 'Get_State'!");
+      console.log("Warning! Using responser for function 'Get_State'!");
       rand = Math.floor(Math.random() * 2);
 
       if (rand === 0) {
