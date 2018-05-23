@@ -25,24 +25,23 @@ setInterval(() => {
     if (DEBUG) {
       console.log('Found motion alert: ' + item.TimeStamp + " / " + item.MotionDuration);
     }
-
     Log_Motion_Detection(item.TimeStamp, item.MotionDuration)
-    previous_target_tv_mode = target_tv_mode
-    target_tv_mode = cache.get_setting("Target TV Mode")
-    if ( DEBUG ) console.log("target_tv_mode: ", target_tv_mode)
-
-    if (target_tv_mode === "OFF") {
-      Stop_Motion_Monitor();
-      Verify_TV_Is_Off();
-    } else if (target_tv_mode === "ON") {
-      Stop_Motion_Monitor();
-      Verify_TV_Is_On();
-    } else if (target_tv_mode === "MOTION") {
-      Start_Motion_Monitor();
-      Monitoring_Motion();
-    }
-
   })
+
+  previous_target_tv_mode = target_tv_mode
+  target_tv_mode = cache.get_setting("Target TV Mode")
+  if ( DEBUG ) console.log("target_tv_mode: ", target_tv_mode)
+
+  if (target_tv_mode === "OFF") {
+    Stop_Motion_Monitor();
+    Verify_TV_Is_Off();
+  } else if (target_tv_mode === "ON") {
+    Stop_Motion_Monitor();
+    Verify_TV_Is_On();
+  } else if (target_tv_mode === "MOTION") {
+    Start_Motion_Monitor();
+    Monitoring_Motion();
+  }
 }, wait_time);
 
 
