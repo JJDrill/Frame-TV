@@ -2,19 +2,15 @@
   This script will take all GPIO motion dectection and log that
   activity into the local_cache.
 */
-var gpio;
+var Gpio;
 var motion_gpio;
-use_test_gpio = false;
+const use_test_gpio = false;
 
 if (use_test_gpio) {
   gpio = require('./gpio_test');
 } else {
   Gpio = require('onoff').Gpio;
-  // Set the GPIO pin number the motion sensor is connected to
   var motion_gpio = new Gpio(15, 'in');
-  // Set up GPIO and set to input
-  // echo "$GPIO" > /sys/class/gpio/export
-  // echo "in" > /sys/class/gpio/gpio$GPIO/direction
 }
 
 var moment = require('moment');

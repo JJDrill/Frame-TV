@@ -72,7 +72,7 @@ function Monitoring_Motion(){
   // if our tv is off just turn it on since we found motion
   if (current_tv_mode === "OFF") {
     message = "Motion detected. Turning on TV."
-    if (DEBUG) { cconsole.log(message); }
+    if (DEBUG) { console.log(message); }
     db.Add_Log(null, "TV ON", message).then()
     tv.Turn_On();
     seconds_counter = 0

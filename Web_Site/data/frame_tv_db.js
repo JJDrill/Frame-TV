@@ -190,7 +190,7 @@ module.exports = {
 
   Generate_Slideshow_Picture_List: function(){
 
-    knex('pictures')
+    return knex('pictures')
     .where('enabled', 'true')
     .select('name')
     .orderBy('name').then(function(data){
@@ -203,7 +203,7 @@ module.exports = {
 
       fs.writeFile('../server_scripts/slideshow_list.txt', fileData, function (err) {
         if (err) throw err;
-      });
-    });
+      })
+    })
   }
 }
