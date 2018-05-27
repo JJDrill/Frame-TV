@@ -14,6 +14,6 @@ setInterval(() => {
   }).then(function(){
     // Generate the feh command and run it
     var fehCommand = 'feh --auto-rotate -x -F -r -Y -z -A slideshow -D' + slideshow_speed + " -f slideshow_list.txt"
-    execSync(fehCommand, ['../pictures']);
+    execSync(fehCommand, ['~/Slideshow_Pictures']);
   })
 }, 2000);

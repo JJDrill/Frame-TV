@@ -198,10 +198,10 @@ module.exports = {
       var fileData = "";
 
       data.forEach(function(element){
-        fileData += "../pictures/" + element.name + "\n"
+        fileData += "~/Slideshow_Pictures/" + element.name + "\n"
       })
 
-      fs.writeFile('../server_scripts/slideshow_list.txt', fileData, function (err) {
+      fs.writeFile('../slideshow/slideshow_list.txt', fileData, function (err) {
         if (err) throw err;
       })
     })
