@@ -1,8 +1,8 @@
 const db = require('./data/frame_tv_db');
 var settings = require('./settings_cache');
 var tv = require('./tv/tv_manager');
-
 const DEBUG = false;
+
 if (DEBUG) {
   db.Add_Log(null, "DEBUG", "WARNING! Motion manager has been set to debug mode.").then()
 }
