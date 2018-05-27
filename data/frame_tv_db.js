@@ -1,6 +1,7 @@
 var knex = require('./knex')
 var fs = require('fs')
 var moment = require('moment');
+const DEBUG = false;
 
 const TV_MODES = {
   DB_STATIC_ON: "Static_On",
@@ -188,21 +189,32 @@ module.exports = {
     .del()
   },
 
-  Generate_Slideshow_Picture_List: function(){
+  Get_Slideshow_List: function(){
 
-    return knex('pictures')
-    .where('enabled', 'true')
-    .select('name')
-    .orderBy('name').then(function(data){
+    return App_Config()
+    .where('setting_name', 'Picture Directory')
+    .select('setting_value').then(function(data){
+      pic_dir = data[0]["setting_value"]
 
-      var fileData = "";
+    }).then(function(){
 
-      data.forEach(function(element){
-        fileData += "~/Slideshow_Pictures/" + element.name + "\n"
-      })
+      return knex('pictures')
+      .where('enabled', 'true')
+      .select('name')
+      .orderBy('name')
+      .then(function(pic_list){
+        var fileData = "";
 
-      fs.writeFile('../slideshow/slideshow_list.txt', fileData, function (err) {
-        if (err) throw err;
+        pic_list.forEach(function(element){
+          fileData += pic_dir + "/" + element.name + "\n"
+        })
+
+        if (DEBUG) {
+          console.log("******* File Data *******");
+          console.log(fileData);
+        }
+
+        return fileData;
       })
     })
   }
