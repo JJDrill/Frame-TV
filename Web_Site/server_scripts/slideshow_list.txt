@@ -1,2 +1,3 @@
-../pictures/Natalie_Bella_01.jpg
-../pictures/Star Wars - Tie Fighters.jpg
+../pictures/Aurora_Borealis_01.jpg
+../pictures/Mars_01.jpg
+../pictures/Dock.jpg

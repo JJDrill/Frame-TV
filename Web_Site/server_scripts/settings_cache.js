@@ -4,12 +4,13 @@
 */
 const DEBUG = true;
 const db = require('../data/frame_tv_db');
-const WAIT_TIME = 10000;
+const WAIT_TIME = 60000;
 var cache = require('./local_cache');
 
 Update_Cache();
 
 setInterval(() => {
+console.log("Running settings manager")
   Update_Cache();
 }, WAIT_TIME);
 

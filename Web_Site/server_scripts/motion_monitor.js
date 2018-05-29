@@ -20,7 +20,7 @@ if (use_test_gpio) {
 var moment = require('moment');
 const db = require('../data/frame_tv_db');
 var cache = require('./local_cache');
-var waitTime = 250
+var waitTime = 1000
 var motionInterval;
 var motionResult = 0;
 var previousMotionResult = 0;
@@ -32,6 +32,7 @@ motionInterval = getMotionInterval()
 
 function getMotionInterval(){
   return setInterval(() => {
+  console.log("Running motion monitor")
     previousMotionResult = motionResult
     motionResult = motion_gpio.readSync();
 

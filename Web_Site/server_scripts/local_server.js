@@ -1,5 +1,6 @@
 const db = require('../data/frame_tv_db');
 
+const slideshow = require('./slideshow_monitor');
 const cache_mngr_settings = require('./settings_cache');
 const motion_monitor = require('./motion_monitor');
 const motion_manager = require('./motion_manager');
@@ -15,7 +16,7 @@ const TV_ACTION_ON = "ON"
 const TV_ACTION_OFF = "OFF"
 const TV_ACTION_MOTION = "MOTION"
 
-setInterval(() => {
+//setInterval(() => {
 
   // console.log("Motion: ", myCache.get(CACHE_MOTION))
   // console.log("Settings: ", settings_cache.Get_All_Settings())
@@ -49,4 +50,4 @@ setInterval(() => {
   //   log_error(message)
   // }
 
-}, 1000);
+//}, 1000000);

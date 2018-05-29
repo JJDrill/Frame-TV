@@ -2,6 +2,7 @@ const { execSync } = require('child_process');
 const db = require('../data/frame_tv_db')
 
 setInterval(() => {
+console.log("slideshow")
   // Update the slideshow speed from the DB
   db.Get_App_Config_Setting('Screen Saver Duration').then(function(data){
     slideshow_speed = data[0].setting_value

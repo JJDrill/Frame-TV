@@ -16,6 +16,7 @@ var previous_target_tv_mode = ""
 
 setInterval(() => {
   seconds_counter += wait_time / 1000
+  console.log("seconds: ", seconds_counter)
   tv_timeout = cache.get_setting("TV Timeout")
   tv_timeout_motion_threshold = cache.get_setting("TV Timeout Motion Threshold")
   tv_motion_sensitivity = cache.get_setting("Motion Sensitivity")
@@ -72,7 +73,7 @@ function Monitoring_Motion(){
   // if our tv is off just turn it on since we found motion
   if (current_tv_mode === "OFF") {
     message = "Motion detected. Turning on TV."
-    if (DEBUG) { cconsole.log(message); }
+    if (DEBUG) { console.log(message); }
     db.Add_Log(null, "TV ON", message).then()
     tv.Turn_On();
     seconds_counter = 0
