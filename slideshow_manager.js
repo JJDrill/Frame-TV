@@ -25,16 +25,18 @@ setInterval(() => {
     }).then();
 
   }).then(function(){
-    // Generate the slideshow picture list
+    // Get the slideshow picture list
     var pic_list;
     return db.Get_Slideshow_List().then(function(pic_list){
       return pic_list;
     }).then();
+
   }).then(function(pic_list){
+    // Write the slideshow list out
     return fs.writeFileSync( pictures_directory + "/slideshow_list.txt", pic_list, function (err) {
         if (err) throw err;
     })
-    console.log("Done writing file!")
+
   }).then(function(){
     if (!DEBUG) {
       // Generate the feh command and run it
