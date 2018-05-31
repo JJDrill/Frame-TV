@@ -34,20 +34,12 @@ ipc.server.start();
 setInterval(() => {
   if ( DEBUG ) console.log("\n**********************************************")
   seconds_counter += wait_time / 1000
-<<<<<<< HEAD:Web_Site/server_scripts/motion_manager.js
-  console.log("seconds: ", seconds_counter)
-  tv_timeout = cache.get_setting("TV Timeout")
-  tv_timeout_motion_threshold = cache.get_setting("TV Timeout Motion Threshold")
-  tv_motion_sensitivity = cache.get_setting("Motion Sensitivity")
-  alerts = cache.purge_montior_alerts()
-=======
   tv_timeout = settings.get_setting("TV Timeout")
   tv_timeout_motion_threshold = settings.get_setting("TV Timeout Motion Threshold")
   tv_motion_sensitivity = settings.get_setting("Motion Sensitivity")
   previous_target_tv_mode = target_tv_mode
   target_tv_mode = settings.get_setting("Target TV Mode")
   var alert = alerts.pop()
->>>>>>> 3c2bba099fd8ad75424b661ef7e5ea9cee8a84d5:local_server.js
 
   if (alert) {
     if (DEBUG) {

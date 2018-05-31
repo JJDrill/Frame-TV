@@ -40,6 +40,7 @@ function getMotionInterval(){
     motionResult = motion_gpio.readSync();
 
     if (motionResult === 1) {
+    console.log(moment())
       if (previousMotionResult != motionResult) {
         // starting a new motion detection loop
         startTime = moment()
