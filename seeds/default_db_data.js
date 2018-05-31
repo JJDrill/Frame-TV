@@ -21,6 +21,9 @@ exports.seed = function(knex, Promise) {
       }),
       knex('app_config').insert({
         setting_name: 'Motion Sensitivity', setting_value: '3000'
+      }),
+      knex('app_config').insert({
+        setting_name: 'Picture Directory', setting_value: '~/Slideshow_Pictures'
       })
     ]);
   }).then(function(){

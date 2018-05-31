@@ -2,33 +2,44 @@
   This script will take all GPIO motion dectection and log that
   activity into the local_cache.
 */
-var gpio;
+const db = require('../data/frame_tv_db');
+var settings = require('../settings_cache');
+var moment = require('moment');
+var Gpio;
 var motion_gpio;
-use_test_gpio = false;
+const use_test_gpio = false;
 
 if (use_test_gpio) {
-  gpio = require('./gpio_test');
+  motion_gpio = require('./gpio_test');
 } else {
   Gpio = require('onoff').Gpio;
-  // Set the GPIO pin number the motion sensor is connected to
   var motion_gpio = new Gpio(15, 'in');
-  // Set up GPIO and set to input
-  // echo "$GPIO" > /sys/class/gpio/export
-  // echo "in" > /sys/class/gpio/gpio$GPIO/direction
 }
 
+<<<<<<< HEAD:Web_Site/server_scripts/motion_monitor.js
 var moment = require('moment');
 const db = require('../data/frame_tv_db');
 var cache = require('./local_cache');
 var waitTime = 1000
+=======
+if (use_test_gpio) {
+  db.Add_Log(null, "RESPONDER",
+  "WARNING! Motion monitor is using GPIO test data.").then()
+}
+
+var waitTime = 250;
+>>>>>>> 3c2bba099fd8ad75424b661ef7e5ea9cee8a84d5:motion_control/motion_manager.js
 var motionInterval;
 var motionResult = 0;
 var previousMotionResult = 0;
 var startTime;
 var endTime;
 
-motionInterval = getMotionInterval()
+var ipc = require('node-ipc');
+ipc.config.id   = 'motion_monitor';
+ipc.config.retry= 1500;
 
+motionInterval = getMotionInterval()
 
 function getMotionInterval(){
   return setInterval(() => {
@@ -42,7 +53,7 @@ function getMotionInterval(){
         startTime = moment()
       } else {
         // see if we should end the detection early
-        var tv_motion_sensitivity = cache.get_setting("Motion Sensitivity")
+        var tv_motion_sensitivity = settings.get_setting("Motion Sensitivity")
         currentDuration = moment() - startTime
         if (tv_motion_sensitivity < currentDuration) {
           endTime = moment()
@@ -50,7 +61,8 @@ function getMotionInterval(){
           result["Status"] = "Motion"
           result["TimeStamp"] = moment().format('YYYY-MMM-DD h:mm:ss a')
           result["MotionDuration"] = endTime - startTime
-          cache.add_monitor_alert(result)
+          Submit_Alert(result);
+
           // fake the end of a motion detection
           motionResult = 0
         }
@@ -64,27 +76,33 @@ function getMotionInterval(){
         result["Status"] = "Motion"
         result["TimeStamp"] = moment().format('YYYY-MMM-DD h:mm:ss a')
         result["MotionDuration"] = endTime - startTime
-        cache.add_monitor_alert(result)
+        Submit_Alert(result);
       }
     }
   }, waitTime);
 }
 
-module.exports = {
-
-  Start: function(){
-    motionInterval = getMotionInterval()
-  },
-
-  Stop: function(){
-    clearInterval(motionInterval);
-  },
-
-  Get_Status: function(){
-    if (motionInterval["_idleTimeout"] === -1) {
-      return false;
-    } else {
-      return true;
-    }
-  }
+function Submit_Alert(alert){
+  ipc.connectTo('world', function(){
+    ipc.of.world.emit('montion_alert', alert);
+  });
 }
+
+// module.exports = {
+//
+//   Start: function(){
+//     motionInterval = getMotionInterval()
+//   },
+//
+//   Stop: function(){
+//     clearInterval(motionInterval);
+//   },
+//
+//   Get_Status: function(){
+//     if (motionInterval["_idleTimeout"] === -1) {
+//       return false;
+//     } else {
+//       return true;
+//     }
+//   }
+// }

@@ -1,10 +1,11 @@
-const db = require('../data/frame_tv_db');
-var cache = require('./local_cache');
-var tv = require('./tv_control');
-const motion_monitor = require('./motion_monitor');
+const db = require('./data/frame_tv_db');
+var settings = require('./settings_cache');
+var tv = require('./tv/tv_manager');
+const DEBUG = false;
 
-const DEBUG = true;
-const DEBUG_TV_STATE = false;
+if (DEBUG) {
+  db.Add_Log(null, "DEBUG", "WARNING! Motion manager has been set to debug mode.").then()
+}
 var wait_time = 1000;
 var tv_timeout = 0;
 var tv_timeout_motion_threshold = 0;
@@ -13,34 +14,59 @@ var seconds_counter = 0;
 var motion_count = 0;
 var target_tv_mode = ""
 var previous_target_tv_mode = ""
+var alerts = []
+
+var ipc=require('node-ipc');
+ipc.config.id   = 'world';
+ipc.config.retry= 1500;
+
+ipc.serve(
+  function(){ ipc.server.on('montion_alert',
+    function(data, socket){
+      alerts.push(data)
+      if ( DEBUG ) console.log("Alert Recieved: ", alerts)
+    }
+  )}
+);
+
+ipc.server.start();
 
 setInterval(() => {
+  if ( DEBUG ) console.log("\n**********************************************")
   seconds_counter += wait_time / 1000
+<<<<<<< HEAD:Web_Site/server_scripts/motion_manager.js
   console.log("seconds: ", seconds_counter)
   tv_timeout = cache.get_setting("TV Timeout")
   tv_timeout_motion_threshold = cache.get_setting("TV Timeout Motion Threshold")
   tv_motion_sensitivity = cache.get_setting("Motion Sensitivity")
   alerts = cache.purge_montior_alerts()
-
-  alerts.forEach(function(item) {
-    if (DEBUG) {
-      console.log('Found motion alert: ' + item.TimeStamp + " / " + item.MotionDuration);
-    }
-    Log_Motion_Detection(item.TimeStamp, item.MotionDuration)
-  })
-
+=======
+  tv_timeout = settings.get_setting("TV Timeout")
+  tv_timeout_motion_threshold = settings.get_setting("TV Timeout Motion Threshold")
+  tv_motion_sensitivity = settings.get_setting("Motion Sensitivity")
   previous_target_tv_mode = target_tv_mode
-  target_tv_mode = cache.get_setting("Target TV Mode")
+  target_tv_mode = settings.get_setting("Target TV Mode")
+  var alert = alerts.pop()
+>>>>>>> 3c2bba099fd8ad75424b661ef7e5ea9cee8a84d5:local_server.js
+
+  if (alert) {
+    if (DEBUG) {
+      console.log('Found motion alert: ' + alert.TimeStamp + " / " + alert.MotionDuration);
+    }
+    Log_Motion_Detection(alert.TimeStamp, alert.MotionDuration)
+  }
+
+
   if ( DEBUG ) console.log("target_tv_mode: ", target_tv_mode)
 
   if (target_tv_mode === "OFF") {
-    Stop_Motion_Monitor();
+    // Stop_Motion_Monitor();
     Verify_TV_Is_Off();
   } else if (target_tv_mode === "ON") {
-    Stop_Motion_Monitor();
+    // Stop_Motion_Monitor();
     Verify_TV_Is_On();
   } else if (target_tv_mode === "MOTION") {
-    Start_Motion_Monitor();
+    // Start_Motion_Monitor();
     Monitoring_Motion();
   }
 }, wait_time);
@@ -48,7 +74,7 @@ setInterval(() => {
 
 function Verify_TV_Is_Off(){
   if (previous_target_tv_mode != target_tv_mode) {
-    current_tv_mode = tv.Get_State(DEBUG_TV_STATE);
+    current_tv_mode = tv.Get_State();
 
     if (current_tv_mode != target_tv_mode) {
       if (DEBUG) { console.log("Turning the TV Off."); }
@@ -59,17 +85,17 @@ function Verify_TV_Is_Off(){
 }
 
 function Verify_TV_Is_On(){
-  current_tv_mode = tv.Get_State(DEBUG_TV_STATE);
+  current_tv_mode = tv.Get_State();
 
   if (current_tv_mode != target_tv_mode) {
-    if (DEBUG) { cconsole.log("Turning the TV On."); }
+    if (DEBUG) { console.log("Turning the TV On."); }
     db.Add_Log(null, "TV ON", "Turning the TV On.").then()
     tv.Turn_On();
   }
 }
 
 function Monitoring_Motion(){
-  current_tv_mode = tv.Get_State(DEBUG_TV_STATE);
+  current_tv_mode = tv.Get_State();
   // if our tv is off just turn it on since we found motion
   if (current_tv_mode === "OFF") {
     message = "Motion detected. Turning on TV."
@@ -84,7 +110,7 @@ function Monitoring_Motion(){
     if (seconds_counter >= tv_timeout) {
 
       if (motion_count < tv_timeout_motion_threshold) {
-        current_tv_mode = tv.Get_State(DEBUG_TV_STATE);
+        current_tv_mode = tv.Get_State();
 
         if (current_tv_mode != target_tv_mode) {
           message = "Turning the TV off due to lack of motion. " +
@@ -105,7 +131,7 @@ function Monitoring_Motion(){
 }
 
 function Log_Motion_Detection(time_stamp, time_duration){
-  motion_sensitivity = cache.get_setting("Motion Sensitivity")
+  motion_sensitivity = settings.get_setting("Motion Sensitivity")
   var message = ""
 
   if (time_duration >= motion_sensitivity) {
@@ -122,13 +148,13 @@ function Log_Motion_Detection(time_stamp, time_duration){
 }
 
 function Start_Motion_Monitor(){
-  if (motion_monitor.Get_Status() != true) {
-    motion_monitor.Start();
-  }
+  ipc.connectTo('world', function(){
+    ipc.of.world.emit('motion_manager', "Start");
+  });
 }
 
 function Stop_Motion_Monitor(){
-  if (motion_monitor.Get_Status() != false) {
-    motion_monitor.Stop();
-  }
+  ipc.connectTo('world', function(){
+    ipc.of.world.emit('motion_manager', "Stop");
+  });
 }
