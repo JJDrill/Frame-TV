@@ -16,19 +16,12 @@ if (use_test_gpio) {
   var motion_gpio = new Gpio(15, 'in');
 }
 
-<<<<<<< HEAD:Web_Site/server_scripts/motion_monitor.js
-var moment = require('moment');
-const db = require('../data/frame_tv_db');
-var cache = require('./local_cache');
-var waitTime = 1000
-=======
 if (use_test_gpio) {
   db.Add_Log(null, "RESPONDER",
   "WARNING! Motion monitor is using GPIO test data.").then()
 }
 
 var waitTime = 250;
->>>>>>> 3c2bba099fd8ad75424b661ef7e5ea9cee8a84d5:motion_control/motion_manager.js
 var motionInterval;
 var motionResult = 0;
 var previousMotionResult = 0;
@@ -43,7 +36,6 @@ motionInterval = getMotionInterval()
 
 function getMotionInterval(){
   return setInterval(() => {
-  console.log("Running motion monitor")
     previousMotionResult = motionResult
     motionResult = motion_gpio.readSync();
 

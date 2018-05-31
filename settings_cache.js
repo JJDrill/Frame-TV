@@ -2,22 +2,14 @@
   This script will pull all the settings from the DB and populate
   them into the settings object every WAIT_TIME seconds.
 */
-<<<<<<< HEAD:Web_Site/server_scripts/settings_cache.js
-const DEBUG = true;
-const db = require('../data/frame_tv_db');
-const WAIT_TIME = 60000;
-var cache = require('./local_cache');
-=======
 const DEBUG = false;
 const db = require('./data/frame_tv_db');
 const WAIT_TIME = 10000;
 var settings = {};
->>>>>>> 3c2bba099fd8ad75424b661ef7e5ea9cee8a84d5:settings_cache.js
 
 Update_Cache();
 
 setInterval(() => {
-console.log("Running settings manager")
   Update_Cache();
 }, WAIT_TIME);
 
