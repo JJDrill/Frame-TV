@@ -5,7 +5,7 @@ const TURN_TV_OFF = "echo standby 0 | cec-client -s -d 1";
 const GET_TV_STATUS = "echo pow 0 | cec-client -s -d 1 | grep 'power status:'";
 const RESPONDER = false;
 
-if (true) {
+if (RESPONDER) {
   db.Add_Log(null, "RESPONDER", "WARNING! tv_control is set to responder mode.").then()
 }
 
@@ -23,11 +23,11 @@ module.exports = {
 
   Get_State: function(){
     if (!RESPONDER) {
-      var result = execSync(GET_TV_STATUS);
+      var result = execSync(GET_TV_STATUS, { encoding: 'utf8' });
 
-      if (result === "power status: on") {
+      if (result === "power status: on\n") {
         return "ON"
-      } else if (result === "power status: standby") {
+      } else if (result === "power status: standby\n") {
         return "OFF"
       }
 

@@ -1,7 +1,7 @@
 const db = require('./data/frame_tv_db');
 var settings = require('./settings_cache');
 var tv = require('./tv/tv_manager');
-const DEBUG = false;
+const DEBUG = true;
 
 if (DEBUG) {
   db.Add_Log(null, "DEBUG", "WARNING! Motion manager has been set to debug mode.").then()
@@ -88,6 +88,7 @@ function Verify_TV_Is_On(){
 
 function Monitoring_Motion(){
   current_tv_mode = tv.Get_State();
+
   // if our tv is off just turn it on since we found motion
   if (current_tv_mode === "OFF") {
     message = "Motion detected. Turning on TV."
