@@ -51,7 +51,6 @@ setInterval(() => {
     motion_was_detected = false
   }
 
-
   if ( DEBUG ) console.log("target_tv_mode: ", target_tv_mode)
 
   if (target_tv_mode === "OFF") {
@@ -92,40 +91,45 @@ function Verify_TV_Is_On(){
 }
 
 function Monitoring_Motion(){
-  current_tv_mode = tv.Get_State();
+
 console.log(current_tv_mode)
 console.log(motion_was_detected)
+
   // if our tv is off just turn it on since we found motion
-  if (current_tv_mode === "OFF" && motion_was_detected === true) {
-    message = "Motion detected. Turning on TV."
-    if (DEBUG) { console.log(message); }
-    db.Add_Log(null, "TV ON", message).then()
-    tv.Turn_On();
-    seconds_counter = 0
-    motion_count = 0
+  if (motion_was_detected === true) {
+    current_tv_mode = tv.Get_State();
 
-  } else {
-    // otherwise check our motion counts
-    if (seconds_counter >= tv_timeout) {
-
-      if (motion_count < tv_timeout_motion_threshold) {
-        current_tv_mode = tv.Get_State();
-
-        if (current_tv_mode != target_tv_mode) {
-          message = "Turning the TV off due to lack of motion. " +
-          "(Motion Count: " + motion_count + ")"
-          if (DEBUG) { console.log(message); }
-          db.Add_Log(null, "TV OFF", message).then()
-          tv.Turn_Off();
-        }
-      } else {
-        message = "Keeping the TV on. (Motion Count: " + motion_count + ")"
-        if (DEBUG) { console.log(message); }
-        db.Add_Log(null, "TV ON", message).then()
-      }
+    if (current_tv_mode === "OFF") {
+      message = "Motion detected. Turning on TV."
+      if (DEBUG) { console.log(message); }
+      db.Add_Log(null, "TV ON", message).then()
+      tv.Turn_On();
       seconds_counter = 0
       motion_count = 0
     }
+  }
+
+  // check our motion counts
+  if (seconds_counter >= tv_timeout) {
+
+    if (motion_count < tv_timeout_motion_threshold) {
+      current_tv_mode = tv.Get_State();
+
+      if (current_tv_mode != target_tv_mode) {
+        message = "Turning the TV off due to lack of motion. " +
+        "(Motion Count: " + motion_count + ")"
+        if (DEBUG) { console.log(message); }
+        db.Add_Log(null, "TV OFF", message).then()
+        tv.Turn_Off();
+      }
+    } else {
+      message = "Keeping the TV on. (Motion Count: " + motion_count + ")"
+      if (DEBUG) { console.log(message); }
+      db.Add_Log(null, "TV ON", message).then()
+    }
+
+    seconds_counter = 0
+    motion_count = 0
   }
 }
 
