@@ -12,6 +12,7 @@ var tv_timeout_motion_threshold = 0;
 var tv_motion_sensitivity = 0;
 var seconds_counter = 0;
 var motion_count = 0;
+var motion_was_detected = false;
 var target_tv_mode = ""
 var previous_target_tv_mode = ""
 var alerts = []
@@ -24,7 +25,7 @@ ipc.serve(
   function(){ ipc.server.on('montion_alert',
     function(data, socket){
       alerts.push(data)
-      if ( DEBUG ) console.log("Alert Recieved: ", alerts)
+      // if ( DEBUG ) console.log("Alert Recieved: ", alerts)
     }
   )}
 );
@@ -46,6 +47,8 @@ setInterval(() => {
       console.log('Found motion alert: ' + alert.TimeStamp + " / " + alert.MotionDuration);
     }
     Log_Motion_Detection(alert.TimeStamp, alert.MotionDuration)
+  } else {
+    motion_was_detected = false
   }
 
 
@@ -65,6 +68,8 @@ setInterval(() => {
 
 
 function Verify_TV_Is_Off(){
+console.log("previous: ", previous_target_tv_mode)
+console.log("target: ", target_tv_mode)
   if (previous_target_tv_mode != target_tv_mode) {
     current_tv_mode = tv.Get_State();
 
@@ -88,9 +93,10 @@ function Verify_TV_Is_On(){
 
 function Monitoring_Motion(){
   current_tv_mode = tv.Get_State();
-
+console.log(current_tv_mode)
+console.log(motion_was_detected)
   // if our tv is off just turn it on since we found motion
-  if (current_tv_mode === "OFF") {
+  if (current_tv_mode === "OFF" && motion_was_detected === true) {
     message = "Motion detected. Turning on TV."
     if (DEBUG) { console.log(message); }
     db.Add_Log(null, "TV ON", message).then()
@@ -129,9 +135,11 @@ function Log_Motion_Detection(time_stamp, time_duration){
 
   if (time_duration >= motion_sensitivity) {
     motion_count += 1
+    motion_was_detected = true
     message = "Motion detected after " + seconds_counter + " seconds. (Count: " +
               motion_count + " - Duration: " + time_duration + ")"
   } else {
+    motion_was_detected = false
     message = "Motion of " + time_duration +
               " milliseconds detected but did not reach sensitivity of " +
               motion_sensitivity + " milliseconds."
