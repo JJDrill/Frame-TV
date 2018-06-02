@@ -5,7 +5,11 @@ var formidable = require('formidable');
 var fs = require('fs');
 const ss_ctrl = require('./data/slideshow_control')
 const db = require('./data/frame_tv_db')
-const picsDirectory = './pictures/'
+var picsDirectory = './pictures/'
+
+db.Get_App_Config_Setting("Picture Directory").then(function(rtn_path){
+  picsDirectory = rtn_path[0]['setting_value']
+})
 
 var path = require('path')
 var urlencodedParser = bodyParser.urlencoded({ extended: false})

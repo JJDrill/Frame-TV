@@ -89,9 +89,6 @@ function Verify_TV_Is_On(){
 }
 
 function Monitoring_Motion(){
-
-console.log(motion_was_detected)
-
   // if we detected motion make sure the tv is already on
   if (motion_was_detected === true) {
     current_tv_mode = tv.Get_State();

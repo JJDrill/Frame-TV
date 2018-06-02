@@ -12,6 +12,7 @@ if (DEBUG) {
 
 setInterval(() => {
   if (DEBUG) { console.log("\n************* Start *************"); }
+  
   // Update the slideshow speed from the DB
   db.Get_App_Config_Setting('Screen Saver Duration').then(function(data){
     slideshow_speed = data[0].setting_value
@@ -46,4 +47,4 @@ setInterval(() => {
       console.log("DEBUG Mode: Here's where the slidshow would run.");
     }
   })
-}, 1000);
+}, 5000);
