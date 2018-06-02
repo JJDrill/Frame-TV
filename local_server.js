@@ -67,8 +67,6 @@ setInterval(() => {
 
 
 function Verify_TV_Is_Off(){
-console.log("previous: ", previous_target_tv_mode)
-console.log("target: ", target_tv_mode)
   if (previous_target_tv_mode != target_tv_mode) {
     current_tv_mode = tv.Get_State();
 
@@ -92,10 +90,9 @@ function Verify_TV_Is_On(){
 
 function Monitoring_Motion(){
 
-console.log(current_tv_mode)
 console.log(motion_was_detected)
 
-  // if our tv is off just turn it on since we found motion
+  // if we detected motion make sure the tv is already on
   if (motion_was_detected === true) {
     current_tv_mode = tv.Get_State();
 
