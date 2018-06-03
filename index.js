@@ -34,21 +34,29 @@ app.post('/addPicture', urlencodedParser, function (req, res) {
   var form = new formidable.IncomingForm();
 
   form.parse(req, function (err, fields, files) {
-    var oldpath = files.filetoupload.path;
-    var newpath = picsDirectory + files.filetoupload.name;
+    // if the pic exists delete the old one firset
+    db.Does_Picture_Exist(files.filetoupload.name).then(function(picExists){
+      if (picExists) {
+        return Delete_Picture(picExists.id);
+      }
 
-    fs.rename(oldpath, newpath, function (err) {
-      if (err) throw err;
-    })
-
-    db.Add_Picture(files.filetoupload.name).then(function(response){
     }).then(function(){
-      db.Get_Pictures().then(function(data){
-        res.redirect('/pictures');
+      var oldpath = files.filetoupload.path;
+      var newpath = picsDirectory + files.filetoupload.name;
+
+      fs.rename(oldpath, newpath, function (err) {
+        if (err) throw err;
+      })
+
+      db.Add_Picture(files.filetoupload.name).then(function(response){
+      }).then(function(){
+        db.Get_Pictures().then(function(data){
+          res.redirect('/pictures');
+        })
       })
     })
-  })
 
+  })
 })
 
 app.get('/pictures/:id', function (req, res) {
@@ -66,22 +74,8 @@ app.put('/pictures/:id', urlencodedParser, function (req, res) {
 })
 
 app.delete('/pictures/:id', function (req, res) {
-
-  db.Get_Picture_Info(req.params.id).then(function(data){
-    return data
-  }).then(function(data){
-    fileInfo = data[0]
-
-    fs.unlinkSync(picsDirectory + fileInfo.name, function (err) {
-      if (err) throw err;
-    })
-
-    db.Delete_Picture(fileInfo.id).then(function(result){})
-  }).then(function(){
-    res.end();
-  })
-
-
+  Delete_Picture(req.params.id);
+  res.end();
 })
 
 app.get('/tvcontrol', function (req, res) {
@@ -169,3 +163,19 @@ app.delete('/logs/:date', function (req, res) {
 app.listen(3000, function () {
   console.log('Listening on port 3000')
 })
+
+
+function Delete_Picture(id){
+  return db.Get_Picture_Info(id).then(function(data){
+    return data
+
+  }).then(function(data){
+    fileInfo = data[0]
+    fs.unlinkSync(picsDirectory + fileInfo.name, function (err) {
+      if (err) throw err;
+    })
+    db.Delete_Picture(fileInfo.id).then(function(result){
+      // console.log("Delete pic result: ", result);
+    })
+  })
+}

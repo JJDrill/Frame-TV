@@ -172,7 +172,7 @@ module.exports = {
   Does_Picture_Exist: function(name){
     return Pictures()
     .where('name', name)
-    .select()
+    .first()
   },
 
   Update_Picture: function(id, enabled){
