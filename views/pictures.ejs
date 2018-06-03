@@ -10,10 +10,11 @@
   </header>
   <body>
     <div class="viewArea">
-      <div class="addPictureView border">
-        <form action="addPicture" method="post" enctype="multipart/form-data">
-          <input type="file" name="filetoupload" value="Test" accept="image/*">
-          <input type="submit" value="Add File">
+      <div class="addPictureView">
+        <form action="addPicture" id="addPictureForm" method="post" enctype="multipart/form-data">
+          <input type="button" id="addPictureButton" value="Add a Picture" onClick="addPictureAction()">
+          <input type="file" id="fileUploadButton" name="filetoupload" accept="image/*" hidden="hidden">
+          <input type="submit" id="addPictureSubmit" value="Add File" hidden="hidden">
         </form>
       </div>
       <table align="right" class="table table-sm picTable table-responsive w-auto">

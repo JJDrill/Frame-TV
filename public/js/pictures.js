@@ -1,3 +1,13 @@
+jQuery("#fileUploadButton").change(function(){
+  if (jQuery(this)[0].validity.valid === true) {
+    $("#addPictureSubmit").click()
+  }
+});
+
+function addPictureAction(){
+  $("#fileUploadButton").click()
+}
+
 function enableDisablePicture(buttonId, picID) {
   myButton = document.getElementById(buttonId);
   newState = ""
