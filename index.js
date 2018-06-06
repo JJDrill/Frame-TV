@@ -6,6 +6,7 @@ var fs = require('fs');
 const ss_ctrl = require('./data/slideshow_control')
 const db = require('./data/frame_tv_db')
 var picsDirectory = './pictures/'
+var moment = require('moment');
 
 db.Get_App_Config_Setting("Picture Directory").then(function(rtn_path){
   picsDirectory = rtn_path[0]['setting_value']
@@ -179,3 +180,13 @@ function Delete_Picture(id){
     })
   })
 }
+
+// log maintenance loop set to run daily and purge logs previous to 30 days ago
+setInterval(() => {
+  deleteDate = moment().subtract(30, 'days').calendar();
+  db.Purge_Logs(deleteDate).then(function(response){
+    db.Add_Log(null, "Maintenance", "Purged " + response + " log entries.").then(function(){
+      // console.log("Logs purged: ", response);
+    })
+  })
+}, 86400);

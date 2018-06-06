@@ -140,8 +140,18 @@ module.exports = {
     .orderBy('time', 'desc')
   },
 
+  // deletes logs from a specific day
   Delete_Logs: function(date){
     rawString = "time_stamp::date = \'" + date + "\'"
+
+    return Logs()
+    .where(knex.raw(rawString))
+    .del()
+  },
+
+  // delete all logs previous to the given date
+  Purge_Logs: function(date){
+    rawString = "time_stamp::date <= \'" + date + "\'"
 
     return Logs()
     .where(knex.raw(rawString))
