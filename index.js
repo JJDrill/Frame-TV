@@ -189,4 +189,4 @@ setInterval(() => {
       // console.log("Logs purged: ", response);
     })
   })
-}, 86400);
+}, 86400000);
